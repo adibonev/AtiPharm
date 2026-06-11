@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Атифарм — лого (първи проход)</title>
+  <!-- Preview-only fonts. Final brochure will embed/choose its own. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Caveat:wght@600;700&family=Marck+Script&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* ---- Brand palette (from the storefront sign + interior) ---- */
+    :root {
+      --lime-bright: #e9ed6e;
+      --lime: #c9d24a;
+      --green-dark: #15532b;   /* text / headings */
+      --leaf-dark: #1c6b2a;
+      --leaf-light: #80c241;
+      --orange: #f59000;       /* accent: % badges, CTA */
+      --orange-light: #ffb43a;
+      --ink: #111;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      color: var(--ink);
+      background: #f4f4ef;
+      padding: 32px 20px 64px;
+    }
+    h1 { font-size: 20px; font-weight: 800; margin: 0 0 4px; color: var(--green-dark); }
+    .sub { color: #666; margin: 0 0 28px; font-size: 14px; }
+
+    .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch; margin-bottom: 36px; }
+    .card {
+      border-radius: 14px;
+      padding: 18px;
+      width: 320px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+      display: flex;
+      flex-direction: column;
+    }
+    .card .label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; opacity: .7; }
+    .on-lime { background: radial-gradient(120% 120% at 50% 35%, var(--lime-bright) 0%, var(--lime) 78%); }
+    .on-lime .label { color: var(--green-dark); }
+    .on-white { background: #fff; }
+
+    .logo-holder { display: flex; align-items: center; justify-content: center; flex: 1; padding: 8px 4px; }
+    .logo { width: 240px; height: auto; }
+    .logo.small { width: 130px; }
+
+    .brand-word { font-family: 'Montserrat', Arial, sans-serif; font-weight: 800; }
+    .brand-script { font-family: 'Caveat', 'Marck Script', cursive; }
+
+    .palette { display: flex; flex-wrap: wrap; gap: 14px; }
+    .swatch { width: 120px; }
+    .chip { height: 64px; border-radius: 10px; border: 1px solid rgba(0,0,0,.08); }
+    .swatch .name { font-size: 12px; font-weight: 700; margin-top: 6px; color: var(--green-dark); }
+    .swatch .hex { font-size: 12px; color: #777; font-family: monospace; }
+
+    .note {
+      max-width: 680px; font-size: 13px; line-height: 1.55; color: #444;
+      background: #fff; border-left: 4px solid var(--leaf-light);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 8px;
+    }
+    .note b { color: var(--green-dark); }
+  </style>
+</head>
+<body>
+  <h1>Аптека Атифарм — лого (първи проход за одобрение)</h1>
+  <p class="sub">Възпроизведено като векторно (SVG) по снимката на витрината. Все още чернова — чака корекции и одобрение от собствениците (§12.2).</p>
+
+  <!-- Master definitions: gradients + two logo symbols (on-lime / on-light) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <radialGradient id="ball" cx="38%" cy="32%" r="75%">
+        <stop offset="0%" stop-color="#ffb43a" />
+        <stop offset="55%" stop-color="#f59000" />
+        <stop offset="100%" stop-color="#d97a00" />
+      </radialGradient>
+      <linearGradient id="leaf" x1="0" y1="0" x2="120" y2="-18" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#1c6b2a" />
+        <stop offset="100%" stop-color="#80c241" />
+      </linearGradient>
+
+      <!-- Shared building blocks -->
+      <g id="caduceus-twist">
+        <path d="M200,92 C222,110 222,128 200,146 C178,164 178,182 200,200 C222,218 222,236 200,252" />
+        <path d="M200,92 C178,110 178,128 200,146 C222,164 222,182 200,200 C178,218 178,236 200,252" />
+      </g>
+      <g id="wings">
+        <g transform="translate(200,120) rotate(-12)">
+          <path d="M0,0 C30,-22 80,-30 120,-18 C85,-6 35,8 0,0 Z" fill="url(#leaf)" />
+          <path d="M4,-1 C40,-13 84,-21 116,-17" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.6" />
+        </g>
+        <g transform="translate(200,120) scale(-1,1) rotate(-12)">
+          <path d="M0,0 C30,-22 80,-30 120,-18 C85,-6 35,8 0,0 Z" fill="url(#leaf)" />
+          <path d="M4,-1 C40,-13 84,-21 116,-17" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.6" />
+        </g>
+      </g>
+      <g id="wordmark">
+        <text class="brand-word" x="200" y="312" text-anchor="middle" font-size="50" letter-spacing="6" fill="#15532b">АПТЕКА</text>
+        <line x1="120" y1="330" x2="280" y2="330" stroke="#15532b" stroke-width="1.6" />
+        <text class="brand-script" x="200" y="378" text-anchor="middle" font-size="50" fill="#15532b">Атифарм</text>
+      </g>
+
+      <!-- Variant for lime/dark surfaces: plain white snake -->
+      <symbol id="logo-on-lime" viewBox="0 0 400 400">
+        <use href="#caduceus-twist" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="8" stroke-linecap="round" transform="translate(1.5,2)" />
+        <use href="#caduceus-twist" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" />
+        <use href="#wings" />
+        <circle cx="200" cy="70" r="21" fill="url(#ball)" />
+        <circle cx="193" cy="63" r="6" fill="rgba(255,255,255,.55)" />
+        <use href="#wordmark" />
+      </symbol>
+
+      <!-- Variant for white surfaces: white snake needs a light-green halo to stay visible -->
+      <symbol id="logo-on-light" viewBox="0 0 400 400">
+        <use href="#caduceus-twist" fill="none" stroke="#cfe6c2" stroke-width="10" stroke-linecap="round" />
+        <use href="#caduceus-twist" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+        <use href="#wings" />
+        <circle cx="200" cy="70" r="21" fill="url(#ball)" />
+        <circle cx="193" cy="63" r="6" fill="rgba(255,255,255,.55)" />
+        <use href="#wordmark" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="row">
+    <div class="card on-lime">
+      <div class="label">Върху лайм (марков фон)</div>
+      <div class="logo-holder">
+        <svg class="logo" viewBox="0 0 400 400" role="img" aria-label="Аптека Атифарм"><use href="#logo-on-lime" /></svg>
+      </div>
+    </div>
+
+    <div class="card on-white">
+      <div class="label">Върху бяло (печатна страница)</div>
+      <div class="logo-holder">
+        <svg class="logo" viewBox="0 0 400 400" role="img" aria-label="Аптека Атифарм"><use href="#logo-on-light" /></svg>
+      </div>
+    </div>
+
+    <div class="card on-white">
+      <div class="label">Малък размер (хедър/футър)</div>
+      <div class="logo-holder">
+        <svg class="logo small" viewBox="0 0 400 400" role="img" aria-label="Аптека Атифарм"><use href="#logo-on-light" /></svg>
+      </div>
+    </div>
+  </div>
+
+  <h1>Цветова палитра</h1>
+  <p class="sub">Извлечена от табелата и интериора. Лаймът е „коварен" при печат — затова пробен печат е част от Фаза 1 (§8).</p>
+  <div class="palette">
+    <div class="swatch"><div class="chip" style="background:#e9ed6e"></div><div class="name">Лайм светъл</div><div class="hex">#E9ED6E</div></div>
+    <div class="swatch"><div class="chip" style="background:#c9d24a"></div><div class="name">Лайм</div><div class="hex">#C9D24A</div></div>
+    <div class="swatch"><div class="chip" style="background:#80c241"></div><div class="name">Лист светъл</div><div class="hex">#80C241</div></div>
+    <div class="swatch"><div class="chip" style="background:#1c6b2a"></div><div class="name">Лист тъмен</div><div class="hex">#1C6B2A</div></div>
+    <div class="swatch"><div class="chip" style="background:#15532b"></div><div class="name">Зелено текст</div><div class="hex">#15532B</div></div>
+    <div class="swatch"><div class="chip" style="background:#f59000"></div><div class="name">Оранж акцент</div><div class="hex">#F59000</div></div>
+  </div>
+
+  <div class="note">
+    <b>Бележки за корекция:</b> На табелата редът е „АПТЕКА → PHARMACY → Атифарм". В брошурата
+    езикът е само български, затова английският ред „PHARMACY" е премахнат. Шрифтовете тук са за
+    преглед (Montserrat за „АПТЕКА", Caveat за „Атифарм") — финалните се избират/вграждат после.
+    Кажи какво да наглася: <b>наклон/дължина на листата</b>, <b>брой навивки</b> на змията,
+    <b>оранжевата глава</b>, разредката на „АПТЕКА" и стила на скрипта.
+  </div>
+</body>
+</html>

@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { products as productsT } from "@/db/schema";
 import { AppNav } from "@/components/AppNav";
-import { createProduct, deleteProduct } from "./actions";
+import { ProductForm } from "@/components/ProductForm";
+import { deleteProduct } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -23,42 +24,7 @@ export default async function ProductsPage() {
 
         <div className="panel">
           <h2>Нов продукт</h2>
-          <form action={createProduct} className="form-grid">
-            <div className="field full">
-              <label>Име *</label>
-              <input name="name" required />
-            </div>
-            <div className="field full">
-              <label>Подзаглавие</label>
-              <input name="subtitle" placeholder="(по избор)" />
-            </div>
-            <div className="field">
-              <label>Тип</label>
-              <select name="type" defaultValue="supplement">
-                <option value="supplement">Добавка</option>
-                <option value="otc_drug">Лекарство (OTC)</option>
-                <option value="cosmetic">Козметика</option>
-                <option value="medical_device">Мед. изделие</option>
-                <option value="other">Друго</option>
-              </select>
-            </div>
-            <div className="field">
-              <label>Мерна единица</label>
-              <select name="priceUnit" defaultValue="per_pack">
-                <option value="per_pack">лв./оп.</option>
-                <option value="per_piece">лв./бр.</option>
-              </select>
-            </div>
-            <div className="field full">
-              <label>Снимка (чист пакшот, бял фон)</label>
-              <input type="file" name="image" accept="image/*" />
-            </div>
-            <div className="full">
-              <button className="btn" type="submit">
-                Добави продукт
-              </button>
-            </div>
-          </form>
+          <ProductForm />
         </div>
 
         <div className="prodlist">

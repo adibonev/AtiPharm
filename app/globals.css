@@ -210,9 +210,18 @@ body.has-toolbar{ padding-top:50px; }
 /* „Намери снимка" — резултати */
 .imgsearch-label{ font-size:12px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px; }
 .imgsearch{ display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; }
-.imgsearch__item{ border:2px solid var(--cream-line); border-radius:8px; padding:0; background:#fff; cursor:pointer; height:92px; overflow:hidden; }
-.imgsearch__item img{ width:100%; height:100%; object-fit:contain; }
+.imgsearch__item{ position:relative; border:2px solid var(--cream-line); border-radius:8px; padding:0; background:#fff; height:92px; overflow:hidden; }
+.imgsearch__item img{ width:100%; height:100%; object-fit:contain; cursor:pointer; }
 .imgsearch__item.sel{ border-color:var(--leaf); box-shadow:0 0 0 2px rgba(70,182,73,.35); }
+.imgsearch__zoom{ position:absolute; top:3px; right:3px; width:22px; height:22px; border:0; border-radius:6px;
+  background:rgba(255,255,255,.9); box-shadow:0 1px 3px rgba(0,0,0,.2); cursor:pointer; font-size:11px; line-height:1; padding:0; }
+
+/* уголемен преглед на снимка */
+.lightbox{ position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.6); display:grid; place-items:center; padding:24px; }
+.lightbox__inner{ background:#fff; border-radius:14px; padding:14px; max-width:92vw; max-height:92vh;
+  display:flex; flex-direction:column; gap:10px; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.lightbox__inner img{ max-width:84vw; max-height:72vh; object-fit:contain; background:#fff; border-radius:8px; }
+.lightbox__bar{ display:flex; gap:10px; justify-content:center; }
 
 /* ---------- БРОЕВЕ (архив) ---------- */
 .issues{ display:flex; flex-direction:column; gap:10px; }

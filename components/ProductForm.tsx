@@ -7,6 +7,7 @@ export function ProductForm() {
   const [name, setName] = useState("");
   const [results, setResults] = useState<ImageResult[]>([]);
   const [chosen, setChosen] = useState("");
+  const [zoom, setZoom] = useState<ImageResult | null>(null);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
 
@@ -70,15 +71,22 @@ export function ProductForm() {
           {results.length > 0 && (
             <div className="imgsearch">
               {results.map((r) => (
-                <button
-                  type="button"
-                  key={r.url}
-                  className={`imgsearch__item ${chosen === r.url ? "sel" : ""}`}
-                  onClick={() => setChosen(r.url)}
-                  title="Избери тази снимка"
-                >
-                  <img src={r.thumb} alt="" />
-                </button>
+                <div key={r.url} className={`imgsearch__item ${chosen === r.url ? "sel" : ""}`}>
+                  <img
+                    src={r.thumb}
+                    alt=""
+                    onClick={() => setChosen(r.url)}
+                    title="Избери тази снимка"
+                  />
+                  <button
+                    type="button"
+                    className="imgsearch__zoom"
+                    onClick={() => setZoom(r)}
+                    title="Уголеми"
+                  >
+                    🔍
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -96,6 +104,35 @@ export function ProductForm() {
           Добави продукт
         </button>
       </div>
+
+      {zoom && (
+        <div className="lightbox" onClick={() => setZoom(null)}>
+          <div className="lightbox__inner" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={zoom.url}
+              alt=""
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = zoom.thumb;
+              }}
+            />
+            <div className="lightbox__bar">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setChosen(zoom.url);
+                  setZoom(null);
+                }}
+              >
+                Избери тази
+              </button>
+              <button type="button" className="btn-light" onClick={() => setZoom(null)}>
+                Затвори
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

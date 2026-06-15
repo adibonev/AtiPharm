@@ -12,24 +12,26 @@ export interface ImageResult {
   thumb: string;
 }
 
-/** "Намери снимка": Google Programmable Search (image). Key stays server-side. */
+/** "Намери снимка": Serper.dev Google Images (handles Cyrillic / BG brands).
+ *  Key stays server-side. Google's own image-search API was retired in Jan 2026. */
 export async function searchImages(query: string): Promise<ImageResult[]> {
-  const key = process.env.IMAGE_SEARCH_API_KEY;
-  const cx = process.env.IMAGE_SEARCH_CX;
-  if (!key || !cx || !query.trim()) return [];
-  const u =
-    `https://www.googleapis.com/customsearch/v1?key=${key}&cx=${cx}` +
-    `&searchType=image&num=6&safe=active&q=${encodeURIComponent(query)}`;
+  const key = process.env.SERPER_API_KEY;
+  if (!key || !query.trim()) return [];
   try {
-    const res = await fetch(u);
+    const res = await fetch("https://google.serper.dev/images", {
+      method: "POST",
+      headers: { "X-API-KEY": key, "Content-Type": "application/json" },
+      body: JSON.stringify({ q: query, gl: "bg", hl: "bg", num: 8 }),
+    });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.items ?? [])
-      .map((it: { link: string; image?: { thumbnailLink?: string } }) => ({
-        url: it.link,
-        thumb: it.image?.thumbnailLink ?? it.link,
+    return (data.images ?? [])
+      .map((it: { imageUrl: string; thumbnailUrl?: string }) => ({
+        url: it.imageUrl,
+        thumb: it.thumbnailUrl ?? it.imageUrl,
       }))
-      .slice(0, 6);
+      .filter((r: ImageResult) => r.url)
+      .slice(0, 8);
   } catch {
     return [];
   }

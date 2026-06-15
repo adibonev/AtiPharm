@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Брошура Аптека Атифарм — финален темплейт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+/* ===== Тема „Премиум зелено" — тъмнозелена корица, бутиков тон ===== */
+:root{
+  --green:#0C5128; --green-d:#073C1D; --green-2:#12713A; --leaf:#46B649;
+  --cream:#F6F3EA; --cream-line:#E8E2D2; --leaf-line:#E0E8DA;
+  --lime:#CFE65A; --orange:#F39200; --teal:#1FA3B5; --ink:#20271F; --muted:#7A8174;
+}
+.prem{ font-family:'Manrope',system-ui,sans-serif; color:var(--ink); }
+
+/* ---------- КОРИЦА ---------- */
+.cover{ background:radial-gradient(120% 90% at 80% 0%, #126237 0%, var(--green) 45%, var(--green-d) 100%); color:#EAF3E6; }
+.cover .page__safe{ display:flex; flex-direction:column; }
+.cv-mast{ display:flex; align-items:center; justify-content:space-between; }
+.logo-pill{ background:#fff; border-radius:16px; padding:8px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+.logo-pill img{ height:16mm; width:auto; display:block; }
+.cv-issue{ text-align:right; }
+.cv-issue .no{ font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:800; color:var(--lime); }
+.cv-issue .period{ display:inline-block; margin-top:7px; border:1.5px solid rgba(255,255,255,.5);
+  border-radius:999px; padding:7px 16px; font-weight:700; font-size:16px; color:#fff; white-space:nowrap; }
+.cv-kicker{ margin:0 0 6mm; font-size:13px; letter-spacing:.28em; text-transform:uppercase; font-weight:800; color:var(--lime); }
+.cv-center{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+.cv-hero{ display:grid; grid-template-columns:1fr 1.05fr; gap:9mm; align-items:center; }
+.cv-card{ position:relative; background:#fff; border-radius:22px; padding:9mm; box-shadow:0 24px 60px rgba(0,0,0,.3); }
+.cv-card img{ width:100%; height:auto; display:block; mix-blend-mode:multiply; }
+.ribbon{ position:absolute; top:14px; left:-10px; background:var(--orange); color:#fff; font-weight:800;
+  font-size:22px; padding:8px 16px 8px 18px; border-radius:6px; box-shadow:0 8px 18px rgba(243,146,0,.45); z-index:3; }
+.ribbon::after{ content:""; position:absolute; left:0; bottom:-8px; border-width:8px 10px 0 0; border-style:solid;
+  border-color:#B96E00 transparent transparent transparent; }
+.cv-body h1{ margin:8px 0 6px; font-size:54px; font-weight:800; color:#fff; line-height:.98; letter-spacing:-.015em; }
+.cv-tag{ display:inline-block; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28);
+  color:#fff; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:6px 14px; border-radius:999px; white-space:nowrap; }
+.cv-body .sub{ margin:0 0 18px; font-size:19px; color:#CFE0CB; font-weight:500; }
+.cv-price .old{ font-size:16px; color:#9CBCA4; font-weight:600; }
+.cv-price .now{ display:flex; align-items:baseline; gap:8px; font-weight:800; font-size:46px; color:#fff; white-space:nowrap; line-height:1.05; }
+.cv-price .now i{ font-style:normal; color:var(--lime); font-weight:500; }
+.cv-price .now .lv{ font-size:36px; color:var(--lime); }
+.cv-price .unit{ display:block; font-size:13px; color:#9CBCA4; margin-top:2px; font-weight:600; }
+.cv-meta{ display:flex; align-items:center; gap:12px; margin-top:14px; }
+.cv-period{ display:inline-block; background:rgba(255,255,255,.12); border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700; color:#EAF3E6; white-space:nowrap; }
+.cv-disc{ font-size:10.5px; color:#9CBCA4; margin:0; line-height:1.35; }
+.cv-foot{ margin-top:8mm; padding-top:6mm; border-top:1px solid rgba(255,255,255,.18); }
+.cv-slogan{ font-style:italic; font-size:16px; color:#EAF3E6; font-weight:500; text-align:center; margin:0 0 6mm; }
+.cv-contacts{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:7mm; }
+.cv-contacts h4{ margin:0 0 3px; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--lime); font-weight:800; }
+.cv-contacts p{ margin:0; font-size:13px; line-height:1.4; color:#DCE9D7; font-weight:500; }
+
+/* ---------- ВЪТРЕШНА СТРАНИЦА ---------- */
+.prem .page:not(.cover){ background:#FAF8F2; }
+.page-head{ display:flex; align-items:center; justify-content:space-between; padding-bottom:11px; border-bottom:1.5px solid var(--cream-line); }
+.page-head img{ height:10mm; }
+.page-head .meta{ font-size:13px; font-weight:700; color:var(--muted); }
+.page-head .meta b{ color:var(--green); }
+.grid{ margin-top:4mm; display:grid; grid-template-columns:1fr 1fr; gap:5mm; }
+.card{ position:relative; background:#fff; border:1px solid var(--cream-line); border-radius:16px;
+  padding:0 0 3.5mm; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 6px 20px rgba(20,40,25,.05); }
+.card__media{ position:relative; height:34mm; display:grid; place-items:center; background:#fff;
+  border-bottom:1px solid var(--cream-line); padding:3mm; }
+.card__media img{ max-height:31mm; max-width:96%; mix-blend-mode:multiply; }
+.ribbon--card{ top:0; left:0; border-radius:0 0 8px 0; font-size:16px; padding:6px 12px; }
+.ribbon--card::after{ display:none; }
+.card__body{ padding:7px 5mm 0; display:flex; flex-direction:column; flex:1; }
+.card h3{ margin:0 0 1px; font-size:22px; font-weight:800; color:var(--green); line-height:1; }
+.card .sub{ margin:0 0 6px; font-size:12.5px; color:var(--muted); font-weight:500; min-height:24px; line-height:1.25; }
+.card .price{ margin-top:auto; }
+.card .price .old{ font-size:12px; color:#AEB6A6; font-weight:600; }
+.card .price .now{ display:flex; align-items:baseline; gap:6px; font-weight:800; font-size:27px; color:var(--green-2); white-space:nowrap; line-height:1.05; }
+.card .price .now i{ font-style:normal; color:var(--leaf); font-weight:500; }
+.card .price .now .lv{ font-size:21px; }
+.card .price .unit{ display:block; font-size:11px; color:var(--muted); font-weight:600; }
+.card__foot{ margin-top:6px; padding-top:6px; border-top:1px dashed var(--cream-line); display:flex; gap:7px; align-items:flex-start; }
+.period-tag{ display:inline-block; background:var(--cream); color:var(--green); border-radius:7px; padding:4px 10px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+.disc{ font-size:9px; line-height:1.25; color:#A6AD9C; margin:0; }
+.card.only .price .pct{ display:flex; align-items:baseline; gap:9px; }
+.card.only .price .pct b{ font-size:42px; font-weight:800; color:var(--orange); line-height:.9; }
+.card.only .price .pct span{ font-size:12px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--green); }
+
+/* тънък футър за продуктовите страници */
+.foot--slim{ position:absolute; left:0; right:0; bottom:0; background:var(--green); color:#cfe0c9;
+  padding:8px 12mm; display:flex; align-items:center; justify-content:space-between; gap:18px;
+  font-size:11px; font-weight:500; line-height:1.35; min-height:13mm; box-sizing:border-box; }
+.foot--slim b{ color:#fff; font-weight:800; }
+.foot--slim .sep{ color:var(--lime); margin:0 6px; }
+.foot--slim > span:first-child{ flex:0 0 auto; }
+.foot--slim > span:last-child{ text-align:right; }
+.page--products .page__safe{ bottom:16mm; display:flex; flex-direction:column; }
+.page--products .grid{ flex:1 1 auto; align-content:start; min-height:0; }
+
+/* ---------- ЕКРАННА ЛЕНТА (само на екран) ---------- */
+.toolbar{ position:fixed; top:0; left:0; right:0; z-index:9999; background:#0C5128; color:#fff;
+  display:flex; align-items:center; gap:14px; padding:9px 18px; font:600 13px/1 'Manrope',sans-serif;
+  box-shadow:0 2px 12px rgba(0,0,0,.25); }
+.toolbar .brand{ font-weight:800; letter-spacing:.04em; margin-right:auto; }
+.toolbar .brand span{ color:var(--lime); }
+.toolbar button{ font:inherit; font-weight:700; color:#0C5128; background:var(--lime); border:0;
+  border-radius:8px; padding:8px 14px; cursor:pointer; transition:.15s; }
+.toolbar button:hover{ filter:brightness(1.06); }
+.toolbar label{ display:flex; align-items:center; gap:7px; color:#cfe0c9; cursor:pointer; }
+.toolbar input{ accent-color:var(--lime); width:15px; height:15px; }
+body.has-toolbar{ padding-top:50px; }
+
+/* ---------- BLEED (3 мм) ---------- */
+body.bleed .page{ width:calc(var(--page-w) + var(--bleed)*2); height:calc(var(--page-h) + var(--bleed)*2); }
+body.bleed .page__safe{ inset:calc(var(--margin) + var(--bleed)); }
+body.bleed .foot--slim{ padding-bottom:calc(8px + var(--bleed)); }
+
+@media print{
+  .toolbar{ display:none !important; }
+  body.has-toolbar{ padding-top:0; }
+}
+</style>
+</head>
+<body class="prem">
+
+<!-- Екранна лента (скрита при печат) -->
+<div class="toolbar screen-only">
+  <div class="brand">Аптека <span>Атифарм</span> · брошура</div>
+  <label><input type="checkbox" id="bleedToggle"> 3&nbsp;мм bleed (за печатница)</label>
+  <button onclick="window.print()">🖨 Печат / Запази PDF</button>
+</div>
+
+<!-- Тук авто-рендерът поставя страниците -->
+<main id="brochure"></main>
+
+<script>
+/* =====================================================================
+   ДАННИ ЗА БРОЯ  —  това е единственото, което се сменя всеки месец.
+   (В Next.js идва от БД/JSON; тук е inline за демонстрация.)
+   ===================================================================== */
+const ISSUE = {
+  no: "Брой №1",
+  period: "14.06 – 13.07.2026",
+  slogan: "Очакваме ви в аптеката, където професионализмът среща личното отношение.",
+  contacts: {
+    address: "ул. Любен Каравелов № 3А, Монтана 3400",
+    phone: "089 696 2299",
+    facebook: "Аптека Атифарм",
+    hours: "Пон–Пет: 7:30–22:30 · Съб–Нед: 8:30–20:30"
+  }
+};
+
+/* type → авто-дисклеймър (спец §7). Само otc_drug и supplement носят
+   задължителен дисклеймър; cosmetic / medical_device / other — без. */
+const DISCLAIMERS = {
+  otc_drug:   "Лекарствен продукт без лекарско предписание. Преди употреба прочетете листовката.",
+  supplement: "Хранителната добавка не замества разнообразното и балансирано хранене."
+};
+
+/* PRODUCTS — задаваш само цените в ЕВРО; левовете и % се смятат автоматично.
+   percentOnly:true, percent:15   ИЛИ   цени: { oldEur, newEur }            */
+const FEATURED = {
+  name: "Прокомбо", sub: "Пробиотик + пребиотик за чревния баланс",
+  tag: "Пробиотик + пребиотик", img: "products/procombo.png",
+  type: "supplement", oldEur: 13.99, newEur: 10.99, unitNote: "за опаковка · лв./оп."
+};
+
+const PRODUCTS = [
+  { name:"Тибанол", sub:"Имунна защита с лактоферин", img:"products/tibanol.png", type:"supplement", oldEur:15.75, newEur:13.39 },
+  { name:"Живи Витамини", sub:"Биоактивна формула — течност в капсула", img:"products/zhivi.png", type:"supplement", oldEur:13.19, newEur:10.29 },
+  { name:"Магнезий Допелхерц", sub:"2-фазна таблетка ДЕПО, 500 mg", img:"products/magnezij.png", type:"supplement", percentOnly:true, percent:15 },
+  { name:"Магкомбо", sub:"Магнезий комплекс — усвояване над 90%", img:"products/magkombo.png", type:"supplement", oldEur:9.99, newEur:6.99 },
+  { name:"Назик", sub:"Спрей за нос при хрема и ринит — възрастни", img:"products/nazik.png", type:"otc_drug", oldEur:7.99, newEur:6.39 },
+  { name:"Назик кидс", sub:"Спрей за нос за деца над 2 г.", img:"products/nazik_kids.png", type:"otc_drug", oldEur:5.69, newEur:4.69 }
+];
+
+/* =====================================================================
+   ЛОГИКА — цени, проценти, форматиране (огледало на бъдещите React хелпъри)
+   ===================================================================== */
+const RATE = 1.95583;                                   // фиксиран курс BGN/EUR
+const lev  = eur => eur * RATE;
+const bg   = n => n.toFixed(2).replace('.', ',');        // 10.99 → "10,99"
+const eurStr = n => bg(n) + " €";
+const levStr = n => bg(n) + " лв.";
+const pctOf  = (oldEur, newEur) => Math.round((1 - newEur/oldEur) * 100);
+
+/* =====================================================================
+   КОМПОНЕНТИ (string → DOM)
+   ===================================================================== */
+function priceBlock(p){
+  if(p.percentOnly){
+    return `<div class="price"><div class="pct"><b>-${p.percent}%</b><span>отстъпка</span></div></div>`;
+  }
+  return `<div class="price">
+      <div class="old strike">${eurStr(p.oldEur)} | ${levStr(lev(p.oldEur))}</div>
+      <div class="now">${eurStr(p.newEur)} <i>|</i> <span class="lv">${levStr(lev(p.newEur))}</span></div>
+      <span class="unit">лв./оп.</span>
+    </div>`;
+}
+
+function cardHTML(p){
+  const ribbon = p.percentOnly ? "" :
+    `<span class="ribbon ribbon--card">-${pctOf(p.oldEur, p.newEur)}%</span>`;
+  return `<article class="card ${p.percentOnly ? 'only' : ''}">
+    <div class="card__media">${ribbon}<img src="${p.img}" alt="${p.name}"></div>
+    <div class="card__body">
+      <h3>${p.name}</h3>
+      <p class="sub">${p.sub}</p>
+      ${priceBlock(p)}
+      <div class="card__foot">
+        <span class="period-tag">${ISSUE.period.replace(/\.\d{4}/,'')}</span>
+        <p class="disc">${DISCLAIMERS[p.type] || ""}</p>
+      </div>
+    </div>
+  </article>`;
+}
+
+function slimFooter(){
+  const c = ISSUE.contacts;
+  return `<footer class="foot--slim">
+    <span><b>Аптека Атифарм</b><span class="sep">·</span>${c.address}</span>
+    <span>${c.phone}<span class="sep">·</span>FB: ${c.facebook}<span class="sep">·</span>${c.hours}</span>
+  </footer>`;
+}
+
+function coverHTML(){
+  const f = FEATURED;
+  return `<section class="page cover" data-screen-label="Корица">
+    <div class="page__safe">
+      <div class="cv-mast">
+        <div class="logo-pill"><img src="assets/logo.png" alt="Аптека Атифарм"></div>
+        <div class="cv-issue"><div class="no">${ISSUE.no}</div><span class="period">${ISSUE.period}</span></div>
+      </div>
+      <div class="cv-center">
+        <div class="cv-kicker">Акцент на броя</div>
+        <div class="cv-hero">
+          <div class="cv-card">
+            <span class="ribbon">-${pctOf(f.oldEur, f.newEur)}%</span>
+            <img src="${f.img}" alt="${f.name}">
+          </div>
+          <div class="cv-body">
+            <span class="cv-tag">${f.tag}</span>
+            <h1>${f.name}</h1>
+            <p class="sub">${f.sub}</p>
+            <div class="cv-price">
+              <div class="old strike">${eurStr(f.oldEur)} | ${levStr(lev(f.oldEur))}</div>
+              <div class="now">${eurStr(f.newEur)} <i>|</i> <span class="lv">${levStr(lev(f.newEur))}</span></div>
+              <span class="unit">${f.unitNote}</span>
+            </div>
+            <div class="cv-meta"><span class="cv-period">Промоция ${ISSUE.period}</span></div>
+            <p class="cv-disc" style="margin-top:10px;">${DISCLAIMERS[f.type] || ""}</p>
+          </div>
+        </div>
+      </div>
+      <div class="cv-foot">
+        <p class="cv-slogan">„${ISSUE.slogan}"</p>
+        <div class="cv-contacts">
+          <div><h4>Адрес</h4><p>${ISSUE.contacts.address}</p></div>
+          <div><h4>Телефон · Facebook</h4><p>${ISSUE.contacts.phone} · ${ISSUE.contacts.facebook}</p></div>
+          <div><h4>Работно време</h4><p>${ISSUE.contacts.hours.replace(' · ', '<br>')}</p></div>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ----- АВТО-ПАГИНАЦИЯ: корица + N продуктови страници (6 карти/стр) ----- */
+const PER_PAGE = 6;
+function render(){
+  const pages = [];
+  pages.push(coverHTML());
+
+  const total = Math.ceil(PRODUCTS.length / PER_PAGE);
+  for(let i=0; i<total; i++){
+    const slice = PRODUCTS.slice(i*PER_PAGE, (i+1)*PER_PAGE);
+    pages.push(`<section class="page page--products" data-screen-label="Продукти ${i+1}/${total}">
+      <div class="page__safe">
+        <header class="page-head">
+          <img src="assets/logo.png" alt="Аптека Атифарм">
+          <div class="meta">${ISSUE.no} · <b>${ISSUE.period}</b></div>
+        </header>
+        <div class="grid">${slice.map(cardHTML).join("")}</div>
+      </div>
+      ${slimFooter()}
+    </section>`);
+  }
+  document.getElementById('brochure').innerHTML = pages.join("\n");
+}
+render();
+
+/* bleed превключвател */
+document.getElementById('bleedToggle').addEventListener('change', e => {
+  document.body.classList.toggle('bleed', e.target.checked);
+});
+document.body.classList.add('has-toolbar');
+</script>
+</body>
+</html>

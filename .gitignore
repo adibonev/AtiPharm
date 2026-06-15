@@ -29,6 +29,10 @@ yarn-error.log*
 # Claude Code local tooling config
 .claude/
 
+# Local preview / archived mockups
+_preview.png
+_archive/
+
 # OS / editor
 .DS_Store
 Thumbs.db

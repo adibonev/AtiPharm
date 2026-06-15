@@ -1,0 +1,60 @@
+/* ============================================================
+   Атифарм брошура — базова механика на A4 страница (за печат)
+   Преизползваемо ядро; темата е отделно (per-direction CSS).
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+:root {
+  /* A4 */
+  --page-w: 210mm;
+  --page-h: 297mm;
+  --bleed: 3mm;          /* печатница; изключваме с .no-bleed на <body> */
+  --margin: 12mm;        /* безопасно поле на съдържанието */
+}
+
+body {
+  background: #d9ddd6;   /* работен фон (само екран) */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Един лист A4 */
+.page {
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 10mm auto;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 6px 30px rgba(0,0,0,.16);
+}
+
+/* Зоната на съдържанието (вътре в полето) */
+.page__safe {
+  position: absolute;
+  inset: var(--margin);
+}
+
+/* Помощни */
+.strike { text-decoration: line-through; }
+.nowrap { white-space: nowrap; }
+
+/* ---------- ПЕЧАТ ---------- */
+@page { size: A4; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  .page {
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .screen-only { display: none !important; }
+}
+
+/* Карта никога да не се цепи през страница */
+.card { break-inside: avoid; page-break-inside: avoid; }

@@ -9,7 +9,8 @@ export function AppNav({ active }: { active: string }) {
       <div className="appnav__brand">
         Аптека <b>Атифарм</b>
       </div>
-      <Link href="/composer" label="Композитор" />
+      <Link href="/composer" label="Нов брой" />
+      <Link href="/issues" label="Броеве" />
       <Link href="/products" label="Продукти" />
       <Link href="/settings" label="Настройки" />
       <form action="/api/logout" method="post" className="appnav__out">

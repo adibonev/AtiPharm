@@ -31,6 +31,7 @@ type Row = {
   percentOnly: boolean;
   percent: string;
   isHero: boolean;
+  confirmed: boolean;
 };
 const emptyRow = (): Row => ({
   included: false,
@@ -39,23 +40,44 @@ const emptyRow = (): Row => ({
   percentOnly: false,
   percent: "",
   isHero: false,
+  confirmed: true,
 });
 const num = (s: string) => (s.trim() ? parseFloat(s.replace(",", ".")) : undefined);
+
+export interface ComposerInitial {
+  issueId: number;
+  number: string;
+  from: string;
+  to: string;
+  freeText: string;
+  rows: Record<number, Row>;
+}
 
 export function Composer({
   catalog,
   settings,
+  initial,
 }: {
   catalog: DbProduct[];
   settings: DbSettings;
+  initial?: ComposerInitial;
 }) {
-  const [number, setNumber] = useState("1");
-  const [from, setFrom] = useState("2026-06-14");
-  const [to, setTo] = useState("2026-07-13");
-  const [freeText, setFreeText] = useState("");
-  const [rows, setRows] = useState<Record<number, Row>>(() =>
-    Object.fromEntries(catalog.map((p) => [p.id, emptyRow()]))
-  );
+  const [number, setNumber] = useState(initial?.number ?? "1");
+  const [from, setFrom] = useState(initial?.from || "2026-06-14");
+  const [to, setTo] = useState(initial?.to || "2026-07-13");
+  const [freeText, setFreeText] = useState(initial?.freeText ?? "");
+  const [rows, setRows] = useState<Record<number, Row>>(() => {
+    const base: Record<number, Row> = Object.fromEntries(
+      catalog.map((p) => [p.id, emptyRow()])
+    );
+    if (initial) {
+      for (const [k, v] of Object.entries(initial.rows)) {
+        base[Number(k)] = { ...emptyRow(), ...v };
+      }
+    }
+    return base;
+  });
+  const [savedId, setSavedId] = useState<number | undefined>(initial?.issueId);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
 
@@ -67,6 +89,8 @@ export function Composer({
         Object.entries(r).map(([k, v]) => [k, { ...v, isHero: Number(k) === id }])
       )
     );
+  // editing/touching a price confirms it (clears the "from previous issue" marker)
+  const priceEdit = (id: number, p: Partial<Row>) => patch(id, { ...p, confirmed: true });
 
   const priced = (r: Row) =>
     r.percentOnly ? !!r.percent.trim() : !!r.oldEur.trim() && !!r.newEur.trim();
@@ -93,6 +117,11 @@ export function Composer({
     : null;
   const gridProducts = renderable.filter((p) => p !== heroP).map(toCard);
 
+  const disclaimers = {
+    otc_drug: settings?.disclaimerOtc ?? DISCLAIMERS.otc_drug,
+    supplement: settings?.disclaimerSupplement ?? DISCLAIMERS.supplement,
+  };
+
   const issue: IssueData = {
     no: `Брой №${number || "1"}`,
     period: formatPeriod(from, to),
@@ -103,11 +132,6 @@ export function Composer({
       facebook: settings?.facebook ?? "",
       hours: settings?.workingHours ?? "",
     },
-  };
-
-  const disclaimers = {
-    otc_drug: settings?.disclaimerOtc ?? DISCLAIMERS.otc_drug,
-    supplement: settings?.disclaimerSupplement ?? DISCLAIMERS.supplement,
   };
 
   async function onSave() {
@@ -127,13 +151,17 @@ export function Composer({
     });
     try {
       const res = await saveIssue({
+        issueId: savedId,
         number: parseInt(number) || 1,
         periodFrom: from,
         periodTo: to,
         freeText,
         items,
       });
-      setSavedMsg(res.ok ? `Запазено (брой #${res.id})` : "Грешка при запис");
+      if (res.ok) {
+        setSavedId(res.id);
+        setSavedMsg(`Запазено (брой #${res.id})`);
+      }
     } catch {
       setSavedMsg("Грешка при запис");
     } finally {
@@ -145,7 +173,8 @@ export function Composer({
     <div className="composer">
       <div className="composer__editor screen-only">
         <div className="composer__nav">
-          <a href="/composer">Композитор</a>
+          <a href="/composer">Нов брой</a>
+          <a href="/issues">Броеве</a>
           <a href="/products">Продукти</a>
           <a href="/settings">Настройки</a>
           <form action="/api/logout" method="post">
@@ -153,7 +182,7 @@ export function Composer({
           </form>
         </div>
 
-        <h2>Нов брой</h2>
+        <h2>{savedId ? `Брой #${savedId}` : "Нов брой"}</h2>
         <div className="composer__row2">
           <div className="composer__field">
             <label>Брой №</label>
@@ -183,8 +212,14 @@ export function Composer({
         <div className="composer__products">
           {catalog.map((p) => {
             const r = rows[p.id];
+            const unconfirmed = r.included && !r.confirmed;
             return (
-              <div className={`composer__prod ${r.included ? "on" : ""}`} key={p.id}>
+              <div
+                className={`composer__prod ${r.included ? "on" : ""} ${
+                  unconfirmed ? "unconfirmed" : ""
+                }`}
+                key={p.id}
+              >
                 <div className="top">
                   <input
                     type="checkbox"
@@ -211,12 +246,14 @@ export function Composer({
                         <input
                           placeholder="стара €"
                           value={r.oldEur}
-                          onChange={(e) => patch(p.id, { oldEur: e.target.value })}
+                          onFocus={() => priceEdit(p.id, {})}
+                          onChange={(e) => priceEdit(p.id, { oldEur: e.target.value })}
                         />
                         <input
                           placeholder="нова €"
                           value={r.newEur}
-                          onChange={(e) => patch(p.id, { newEur: e.target.value })}
+                          onFocus={() => priceEdit(p.id, {})}
+                          onChange={(e) => priceEdit(p.id, { newEur: e.target.value })}
                         />
                       </div>
                     ) : (
@@ -224,10 +261,14 @@ export function Composer({
                         <input
                           placeholder="−% отстъпка"
                           value={r.percent}
-                          onChange={(e) => patch(p.id, { percent: e.target.value })}
+                          onFocus={() => priceEdit(p.id, {})}
+                          onChange={(e) => priceEdit(p.id, { percent: e.target.value })}
                         />
                         <span />
                       </div>
+                    )}
+                    {unconfirmed && (
+                      <div className="confirm-flag">цена от предишен брой — потвърди</div>
                     )}
                     <div className="opts">
                       <label>

@@ -192,7 +192,7 @@ body.has-toolbar{ padding-top:50px; }
 .field label{ font-size:12px; font-weight:700; color:var(--muted); }
 .field input, .field select, .field textarea{ padding:9px 11px; border:1.5px solid var(--cream-line); border-radius:9px; font:inherit; }
 .btn{ padding:10px 18px; border:0; border-radius:9px; background:var(--green); color:#fff; font:inherit; font-weight:800; cursor:pointer; }
-.btn-light{ background:var(--cream); color:var(--green); }
+.btn-light{ padding:9px 16px; border:0; border-radius:9px; background:var(--cream); color:var(--green); font:inherit; font-weight:800; cursor:pointer; text-decoration:none; display:inline-block; }
 .btn-danger{ background:#fff; color:#c0392b; border:1px solid #eccfcf; padding:6px 12px; border-radius:8px; cursor:pointer; font:inherit; font-size:12px; font-weight:700; }
 .prodlist{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; }
 .prodlist .item{ border:1px solid var(--cream-line); border-radius:12px; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
@@ -203,6 +203,18 @@ body.has-toolbar{ padding-top:50px; }
 .prodlist .meta small{ color:var(--muted); font-size:11px; }
 .prodlist .meta .type{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--leaf); font-weight:800; }
 .prodlist form{ margin:0 10px 10px; }
+
+/* ---------- БРОЕВЕ (архив) ---------- */
+.issues{ display:flex; flex-direction:column; gap:10px; }
+.issue-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--cream-line); border-radius:12px; padding:12px 16px; background:#fff; }
+.issue-row b{ color:var(--green); }
+.issue-row small{ display:block; color:var(--muted); font-size:12px; margin-top:2px; }
+.issue-row .actions{ display:flex; gap:8px; align-items:center; }
+.issue-row .actions form{ margin:0; }
+
+/* жълт маркер за непотвърдена цена (от „Публикувай предишния брой") */
+.composer__prod.unconfirmed{ border-color:#e6b800; background:#fffdf0; }
+.confirm-flag{ font-size:11px; font-weight:800; color:#9a7b00; background:#fff3bf; border-radius:6px; padding:3px 8px; margin-top:6px; display:inline-block; }
 
 @media print {
   .composer{ display:block; }

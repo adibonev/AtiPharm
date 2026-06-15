@@ -6,6 +6,7 @@ import { uploadToR2 } from "@/lib/r2";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import sharp from "sharp";
 
 export interface ImageResult {
   url: string;
@@ -35,27 +36,47 @@ export async function searchImages(query: string): Promise<ImageResult[]> {
   }
 }
 
-/** Upload a manual file, or fetch a chosen image URL and store it in R2. */
-async function resolveImage(file: File | null, externalUrl: string): Promise<string | null> {
-  if (file && file.size > 0) {
-    const buf = Buffer.from(await file.arrayBuffer());
-    const ext =
-      (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-    return uploadToR2(`products/${crypto.randomUUID()}.${ext}`, buf, file.type || "image/png");
+/** Normalize to a consistent 800×800 white canvas (spec §9): flatten onto
+ *  white, trim borders, fit to 720, center on 800 with padding. */
+async function normalizeAndUpload(buf: Buffer): Promise<string> {
+  let out: Buffer;
+  try {
+    out = await sharp(buf)
+      .flatten({ background: "#ffffff" })
+      .trim()
+      .resize(720, 720, { fit: "inside", withoutEnlargement: true })
+      .resize(800, 800, { fit: "contain", background: "#ffffff" })
+      .png()
+      .toBuffer();
+  } catch {
+    out = await sharp(buf)
+      .flatten({ background: "#ffffff" })
+      .resize(800, 800, { fit: "contain", background: "#ffffff" })
+      .png()
+      .toBuffer();
   }
-  if (externalUrl) {
+  return uploadToR2(`products/${crypto.randomUUID()}.png`, out, "image/png");
+}
+
+/** Get bytes from a manual upload or a chosen image URL, normalize, store in R2. */
+async function resolveImage(file: File | null, externalUrl: string): Promise<string | null> {
+  let buf: Buffer | null = null;
+  if (file && file.size > 0) {
+    buf = Buffer.from(await file.arrayBuffer());
+  } else if (externalUrl) {
     try {
       const r = await fetch(externalUrl);
-      if (!r.ok) return null;
-      const buf = Buffer.from(await r.arrayBuffer());
-      const ct = r.headers.get("content-type") || "image/jpeg";
-      const ext = (ct.split("/")[1] || "jpg").split(";")[0].replace(/[^a-z0-9]/g, "") || "jpg";
-      return uploadToR2(`products/${crypto.randomUUID()}.${ext}`, buf, ct);
+      if (r.ok) buf = Buffer.from(await r.arrayBuffer());
     } catch {
-      return null;
+      /* ignore */
     }
   }
-  return null;
+  if (!buf) return null;
+  try {
+    return await normalizeAndUpload(buf);
+  } catch {
+    return null;
+  }
 }
 
 export async function createProduct(formData: FormData) {

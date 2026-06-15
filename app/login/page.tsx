@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AUTH_COOKIE } from "@/lib/auth";
+import { AUTH_COOKIE, authToken } from "@/lib/auth";
 
 async function login(formData: FormData) {
   "use server";
   const pw = String(formData.get("password") || "");
   if (pw && pw === process.env.APP_PASSWORD) {
-    (await cookies()).set(AUTH_COOKIE, "1", {
+    (await cookies()).set(AUTH_COOKIE, await authToken(), {
       httpOnly: true,
       sameSite: "lax",
       path: "/",

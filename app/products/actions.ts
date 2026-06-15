@@ -6,7 +6,6 @@ import { uploadToR2 } from "@/lib/r2";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import sharp from "sharp";
 
 export interface ImageResult {
   url: string;
@@ -36,12 +35,12 @@ export async function searchImages(query: string): Promise<ImageResult[]> {
   }
 }
 
-/** Normalize to a consistent 800×800 white canvas (spec §9): flatten onto
- *  white, trim borders, fit to 720, center on 800 with padding. */
-async function normalizeAndUpload(buf: Buffer): Promise<string> {
-  let out: Buffer;
+/** Normalize to a consistent 800×800 white canvas (spec §9). sharp is loaded
+ *  lazily so merely importing this module never touches the native binary. */
+async function normalize(buf: Buffer): Promise<Buffer> {
+  const sharp = (await import("sharp")).default;
   try {
-    out = await sharp(buf)
+    return await sharp(buf)
       .flatten({ background: "#ffffff" })
       .trim()
       .resize(720, 720, { fit: "inside", withoutEnlargement: true })
@@ -49,33 +48,48 @@ async function normalizeAndUpload(buf: Buffer): Promise<string> {
       .png()
       .toBuffer();
   } catch {
-    out = await sharp(buf)
+    return await sharp(buf)
       .flatten({ background: "#ffffff" })
       .resize(800, 800, { fit: "contain", background: "#ffffff" })
       .png()
       .toBuffer();
   }
-  return uploadToR2(`products/${crypto.randomUUID()}.png`, out, "image/png");
 }
 
-/** Get bytes from a manual upload or a chosen image URL, normalize, store in R2. */
+/** Get bytes from a manual upload or a chosen image URL, normalize if possible,
+ *  and store in R2. Falls back to a raw upload if sharp is unavailable. */
 async function resolveImage(file: File | null, externalUrl: string): Promise<string | null> {
   let buf: Buffer | null = null;
+  let contentType = "image/png";
   if (file && file.size > 0) {
     buf = Buffer.from(await file.arrayBuffer());
+    contentType = file.type || "image/png";
   } else if (externalUrl) {
     try {
       const r = await fetch(externalUrl);
-      if (r.ok) buf = Buffer.from(await r.arrayBuffer());
+      if (r.ok) {
+        buf = Buffer.from(await r.arrayBuffer());
+        contentType = r.headers.get("content-type") || "image/jpeg";
+      }
     } catch {
       /* ignore */
     }
   }
   if (!buf) return null;
+
+  const id = crypto.randomUUID();
   try {
-    return await normalizeAndUpload(buf);
+    const out = await normalize(buf);
+    return await uploadToR2(`products/${id}.png`, out, "image/png");
   } catch {
-    return null;
+    // sharp not available — upload the original bytes as-is
+    const ext =
+      (contentType.split("/")[1] || "png").split(";")[0].replace(/[^a-z0-9]/g, "") || "png";
+    try {
+      return await uploadToR2(`products/${id}.${ext}`, buf, contentType);
+    } catch {
+      return null;
+    }
   }
 }
 

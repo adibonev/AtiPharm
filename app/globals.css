@@ -223,6 +223,15 @@ body.has-toolbar{ padding-top:50px; }
 .composer__prod.unconfirmed{ border-color:#e6b800; background:#fffdf0; }
 .confirm-flag{ font-size:11px; font-weight:800; color:#9a7b00; background:#fff3bf; border-radius:6px; padding:3px 8px; margin-top:6px; display:inline-block; }
 
+/* подредба (drag & drop) */
+.orderlist{ display:flex; flex-direction:column; gap:6px; }
+.orderlist__item{ display:flex; align-items:center; gap:8px; border:1.5px solid var(--cream-line); border-radius:8px; padding:6px 10px; background:#fff; cursor:grab; }
+.orderlist__item.drag{ opacity:.45; }
+.orderlist__item .handle{ color:#c4c4c4; font-size:14px; cursor:grab; }
+.orderlist__item .nm{ flex:1; font-size:13px; color:var(--green); font-weight:700; }
+.orderlist__item button{ border:1px solid var(--cream-line); background:#fff; border-radius:6px; cursor:pointer; width:26px; height:26px; font:inherit; line-height:1; }
+.orderlist__item button:disabled{ opacity:.3; cursor:default; }
+
 @media print {
   .composer{ display:block; }
   .composer__editor{ display:none !important; }

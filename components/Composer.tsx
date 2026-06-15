@@ -51,6 +51,7 @@ export interface ComposerInitial {
   to: string;
   freeText: string;
   rows: Record<number, Row>;
+  order: number[];
 }
 
 export function Composer({
@@ -71,12 +72,12 @@ export function Composer({
       catalog.map((p) => [p.id, emptyRow()])
     );
     if (initial) {
-      for (const [k, v] of Object.entries(initial.rows)) {
-        base[Number(k)] = { ...emptyRow(), ...v };
-      }
+      for (const [k, v] of Object.entries(initial.rows)) base[Number(k)] = { ...emptyRow(), ...v };
     }
     return base;
   });
+  const [order, setOrder] = useState<number[]>(initial?.order ?? []);
+  const [dragId, setDragId] = useState<number | null>(null);
   const [savedId, setSavedId] = useState<number | undefined>(initial?.issueId);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
@@ -85,12 +86,37 @@ export function Composer({
     setRows((r) => ({ ...r, [id]: { ...r[id], ...p } }));
   const setHero = (id: number) =>
     setRows((r) =>
-      Object.fromEntries(
-        Object.entries(r).map(([k, v]) => [k, { ...v, isHero: Number(k) === id }])
-      )
+      Object.fromEntries(Object.entries(r).map(([k, v]) => [k, { ...v, isHero: Number(k) === id }]))
     );
-  // editing/touching a price confirms it (clears the "from previous issue" marker)
   const priceEdit = (id: number, p: Partial<Row>) => patch(id, { ...p, confirmed: true });
+
+  function toggleInclude(id: number, checked: boolean) {
+    patch(id, { included: checked });
+    setOrder((o) => (checked ? (o.includes(id) ? o : [...o, id]) : o.filter((x) => x !== id)));
+  }
+  function move(id: number, dir: -1 | 1) {
+    setOrder((o) => {
+      const a = [...o];
+      const i = a.indexOf(id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= a.length) return o;
+      [a[i], a[j]] = [a[j], a[i]];
+      return a;
+    });
+  }
+  function onDragOver(e: React.DragEvent, overId: number) {
+    e.preventDefault();
+    if (dragId == null || dragId === overId) return;
+    setOrder((o) => {
+      const a = [...o];
+      const from2 = a.indexOf(dragId);
+      const to2 = a.indexOf(overId);
+      if (from2 < 0 || to2 < 0) return o;
+      a.splice(from2, 1);
+      a.splice(to2, 0, dragId);
+      return a;
+    });
+  }
 
   const priced = (r: Row) =>
     r.percentOnly ? !!r.percent.trim() : !!r.oldEur.trim() && !!r.newEur.trim();
@@ -109,8 +135,11 @@ export function Composer({
     };
   };
 
-  const included = catalog.filter((p) => rows[p.id].included);
-  const renderable = included.filter((p) => priced(rows[p.id]));
+  // products of the issue, in manual order
+  const includedOrdered = order
+    .map((id) => catalog.find((p) => p.id === id))
+    .filter((p): p is DbProduct => !!p && rows[p.id]?.included);
+  const renderable = includedOrdered.filter((p) => priced(rows[p.id]));
   const heroP = renderable.find((p) => rows[p.id].isHero) ?? renderable[0];
   const featured: FeaturedProduct | null = heroP
     ? { ...toCard(heroP), tag: heroP.subtitle ?? undefined, unitNote: "за опаковка · лв./оп." }
@@ -137,7 +166,7 @@ export function Composer({
   async function onSave() {
     setSaving(true);
     setSavedMsg("");
-    const items = included.map((p, i) => {
+    const items = includedOrdered.map((p, i) => {
       const r = rows[p.id];
       return {
         productId: p.id,
@@ -190,11 +219,7 @@ export function Composer({
           </div>
           <div className="composer__field">
             <label>Свободен текст</label>
-            <input
-              value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
-              placeholder="(по избор)"
-            />
+            <input value={freeText} onChange={(e) => setFreeText(e.target.value)} placeholder="(по избор)" />
           </div>
         </div>
         <div className="composer__row2">
@@ -215,27 +240,19 @@ export function Composer({
             const unconfirmed = r.included && !r.confirmed;
             return (
               <div
-                className={`composer__prod ${r.included ? "on" : ""} ${
-                  unconfirmed ? "unconfirmed" : ""
-                }`}
+                className={`composer__prod ${r.included ? "on" : ""} ${unconfirmed ? "unconfirmed" : ""}`}
                 key={p.id}
               >
                 <div className="top">
                   <input
                     type="checkbox"
                     checked={r.included}
-                    onChange={(e) => patch(p.id, { included: e.target.checked })}
+                    onChange={(e) => toggleInclude(p.id, e.target.checked)}
                   />
                   <b>{p.name}</b>
                   {r.included && (
                     <label style={{ fontSize: 12, color: "var(--muted)" }}>
-                      <input
-                        type="radio"
-                        name="hero"
-                        checked={heroP?.id === p.id}
-                        onChange={() => setHero(p.id)}
-                      />{" "}
-                      акцент
+                      <input type="radio" name="hero" checked={heroP?.id === p.id} onChange={() => setHero(p.id)} /> акцент
                     </label>
                   )}
                 </div>
@@ -243,41 +260,19 @@ export function Composer({
                   <>
                     {!r.percentOnly ? (
                       <div className="grid2">
-                        <input
-                          placeholder="стара €"
-                          value={r.oldEur}
-                          onFocus={() => priceEdit(p.id, {})}
-                          onChange={(e) => priceEdit(p.id, { oldEur: e.target.value })}
-                        />
-                        <input
-                          placeholder="нова €"
-                          value={r.newEur}
-                          onFocus={() => priceEdit(p.id, {})}
-                          onChange={(e) => priceEdit(p.id, { newEur: e.target.value })}
-                        />
+                        <input placeholder="стара €" value={r.oldEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { oldEur: e.target.value })} />
+                        <input placeholder="нова €" value={r.newEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { newEur: e.target.value })} />
                       </div>
                     ) : (
                       <div className="grid2">
-                        <input
-                          placeholder="−% отстъпка"
-                          value={r.percent}
-                          onFocus={() => priceEdit(p.id, {})}
-                          onChange={(e) => priceEdit(p.id, { percent: e.target.value })}
-                        />
+                        <input placeholder="−% отстъпка" value={r.percent} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { percent: e.target.value })} />
                         <span />
                       </div>
                     )}
-                    {unconfirmed && (
-                      <div className="confirm-flag">цена от предишен брой — потвърди</div>
-                    )}
+                    {unconfirmed && <div className="confirm-flag">цена от предишен брой — потвърди</div>}
                     <div className="opts">
                       <label>
-                        <input
-                          type="checkbox"
-                          checked={r.percentOnly}
-                          onChange={(e) => patch(p.id, { percentOnly: e.target.checked })}
-                        />{" "}
-                        само −% (без цени)
+                        <input type="checkbox" checked={r.percentOnly} onChange={(e) => patch(p.id, { percentOnly: e.target.checked })} /> само −% (без цени)
                       </label>
                     </div>
                   </>
@@ -287,35 +282,43 @@ export function Composer({
           })}
         </div>
 
-        <div className="composer__bar">
-          <button className="btn-print" onClick={() => window.print()}>
-            🖨 Печат / PDF
-          </button>
-          <button className="btn-save" onClick={onSave} disabled={saving}>
-            {saving ? "Запазвам…" : "Запази брой"}
-          </button>
-        </div>
-        {savedMsg && (
-          <p style={{ color: "var(--green)", fontSize: 13, marginTop: 8, fontWeight: 600 }}>
-            {savedMsg}
-          </p>
+        {includedOrdered.length > 1 && (
+          <>
+            <h2 style={{ marginTop: 16 }}>Подредба <small style={{ fontWeight: 500, color: "var(--muted)", fontSize: 12 }}>(влачи или ↑↓)</small></h2>
+            <div className="orderlist">
+              {includedOrdered.map((p, i) => (
+                <div
+                  key={p.id}
+                  className={`orderlist__item ${dragId === p.id ? "drag" : ""}`}
+                  draggable
+                  onDragStart={() => setDragId(p.id)}
+                  onDragOver={(e) => onDragOver(e, p.id)}
+                  onDragEnd={() => setDragId(null)}
+                >
+                  <span className="handle">⠿</span>
+                  <span className="nm">{i + 1}. {p.name}{heroP?.id === p.id ? " · акцент" : ""}</span>
+                  <button type="button" onClick={() => move(p.id, -1)} disabled={i === 0}>↑</button>
+                  <button type="button" onClick={() => move(p.id, 1)} disabled={i === includedOrdered.length - 1}>↓</button>
+                </div>
+              ))}
+            </div>
+          </>
         )}
+
+        <div className="composer__bar">
+          <button className="btn-print" onClick={() => window.print()}>🖨 Печат / PDF</button>
+          <button className="btn-save" onClick={onSave} disabled={saving}>{saving ? "Запазвам…" : "Запази брой"}</button>
+        </div>
+        {savedMsg && <p style={{ color: "var(--green)", fontSize: 13, marginTop: 8, fontWeight: 600 }}>{savedMsg}</p>}
       </div>
 
       <div className="composer__preview">
         {featured ? (
           <div className="composer__preview-inner">
-            <Brochure
-              issue={issue}
-              featured={featured}
-              products={gridProducts}
-              disclaimers={disclaimers}
-            />
+            <Brochure issue={issue} featured={featured} products={gridProducts} disclaimers={disclaimers} />
           </div>
         ) : (
-          <div className="composer__empty">
-            Избери продукти и въведи цени отляво, за да се появи брошурата.
-          </div>
+          <div className="composer__empty">Избери продукти и въведи цени отляво, за да се появи брошурата.</div>
         )}
       </div>
     </div>

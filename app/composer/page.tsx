@@ -24,9 +24,13 @@ export default async function ComposerPage({
   if (issueId) {
     const iss = (await db.select().from(issuesT).where(eq(issuesT.id, issueId)))[0];
     if (iss) {
-      const items = await db.select().from(ipT).where(eq(ipT.issueId, issueId));
+      const items = (await db.select().from(ipT).where(eq(ipT.issueId, issueId))).sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+      );
       const rows: ComposerInitial["rows"] = {};
+      const order: number[] = [];
       for (const it of items) {
+        order.push(it.productId);
         rows[it.productId] = {
           included: true,
           oldEur: it.oldPriceEur ?? "",
@@ -44,6 +48,7 @@ export default async function ComposerPage({
         to: iss.periodTo ?? "",
         freeText: iss.freeText ?? "",
         rows,
+        order,
       };
     }
   }

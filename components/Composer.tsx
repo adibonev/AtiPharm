@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Brochure } from "./Brochure";
 import { AppNav } from "./AppNav";
 import { formatPeriod, DISCLAIMERS } from "@/lib/pricing";
-import { saveIssue } from "@/app/composer/actions";
+import { saveIssue, getIssueForCopy } from "@/app/composer/actions";
 import type { IssueData, CardProduct, FeaturedProduct, ProductType } from "@/lib/types";
 
 type DbProduct = {
@@ -109,6 +109,32 @@ export function Composer({
       [a[i], a[j]] = [a[j], a[i]];
       return a;
     });
+  }
+  async function onCopy(id: number) {
+    const data = await getIssueForCopy(id);
+    if (!data) return;
+    setRows(() => {
+      const base: Record<number, Row> = Object.fromEntries(
+        catalog.map((p) => [p.id, emptyRow()])
+      );
+      for (const it of data.items) {
+        base[it.productId] = {
+          included: true,
+          oldEur: it.oldEur,
+          newEur: it.newEur,
+          percentOnly: it.percentOnly,
+          percent: it.percent,
+          isHero: it.isHero,
+          confirmed: false, // copied prices need confirmation
+        };
+      }
+      return base;
+    });
+    setOrder(data.items.map((it) => it.productId));
+    setNumber(String(data.number + 1));
+    setFrom(data.from);
+    setTo(data.to);
+    setSavedId(undefined);
   }
   function onDragOver(e: React.DragEvent, overId: number) {
     e.preventDefault();
@@ -225,9 +251,9 @@ export function Composer({
           <div className="composer__field" style={{ marginBottom: 12 }}>
             <label>Копирай от стар брой</label>
             <select
-              defaultValue=""
+              value=""
               onChange={(e) => {
-                if (e.target.value) window.location.href = `/composer?copyFrom=${e.target.value}`;
+                if (e.target.value) onCopy(Number(e.target.value));
               }}
             >
               <option value="">— нов празен брой —</option>

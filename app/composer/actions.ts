@@ -23,6 +23,28 @@ export interface SaveIssueInput {
   items: SaveIssueItem[];
 }
 
+/** Load a past issue's products & prices for copying into a new issue (client-side). */
+export async function getIssueForCopy(id: number) {
+  const [iss] = await db.select().from(issues).where(eq(issues.id, id));
+  if (!iss) return null;
+  const items = (await db.select().from(issueProducts).where(eq(issueProducts.issueId, id))).sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
+  return {
+    number: iss.number,
+    from: iss.periodFrom ?? "",
+    to: iss.periodTo ?? "",
+    items: items.map((it) => ({
+      productId: it.productId,
+      oldEur: it.oldPriceEur ?? "",
+      newEur: it.newPriceEur ?? "",
+      percentOnly: it.percentOnly,
+      percent: it.percent != null ? String(it.percent) : "",
+      isHero: it.isHero,
+    })),
+  };
+}
+
 export async function saveIssue(input: SaveIssueInput) {
   let issueId = input.issueId;
   const meta = {

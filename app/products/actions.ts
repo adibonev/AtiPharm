@@ -58,23 +58,40 @@ async function normalize(buf: Buffer): Promise<Buffer> {
   }
 }
 
-/** Get bytes from a manual upload or a chosen image URL, normalize if possible,
- *  and store in R2. Falls back to a raw upload if sharp is unavailable. */
-async function resolveImage(file: File | null, externalUrl: string): Promise<string | null> {
+const FETCH_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
+
+/** Download an image URL with a browser User-Agent (many hosts 403 otherwise). */
+async function fetchImage(url: string): Promise<{ buf: Buffer; ct: string } | null> {
+  try {
+    const r = await fetch(url, { headers: { "User-Agent": FETCH_UA, Accept: "image/*,*/*" } });
+    const ct = r.headers.get("content-type") || "image/jpeg";
+    if (!r.ok || !ct.startsWith("image/")) return null;
+    return { buf: Buffer.from(await r.arrayBuffer()), ct };
+  } catch {
+    return null;
+  }
+}
+
+/** Get bytes from a manual upload or a chosen image URL (full, then thumbnail
+ *  fallback), normalize if possible, and store in R2. */
+async function resolveImage(
+  file: File | null,
+  externalUrl: string,
+  externalThumb: string
+): Promise<string | null> {
   let buf: Buffer | null = null;
   let contentType = "image/png";
   if (file && file.size > 0) {
     buf = Buffer.from(await file.arrayBuffer());
     contentType = file.type || "image/png";
-  } else if (externalUrl) {
-    try {
-      const r = await fetch(externalUrl);
-      if (r.ok) {
-        buf = Buffer.from(await r.arrayBuffer());
-        contentType = r.headers.get("content-type") || "image/jpeg";
-      }
-    } catch {
-      /* ignore */
+  } else if (externalUrl || externalThumb) {
+    const got =
+      (externalUrl ? await fetchImage(externalUrl) : null) ??
+      (externalThumb ? await fetchImage(externalThumb) : null);
+    if (got) {
+      buf = got.buf;
+      contentType = got.ct;
     }
   }
   if (!buf) return null;
@@ -104,8 +121,9 @@ export async function createProduct(formData: FormData) {
   const priceUnit = String(formData.get("priceUnit") || "per_pack");
   const file = formData.get("image") as File | null;
   const externalUrl = String(formData.get("imageUrlExternal") || "").trim();
+  const externalThumb = String(formData.get("imageThumbExternal") || "").trim();
 
-  const imageUrl = await resolveImage(file, externalUrl);
+  const imageUrl = await resolveImage(file, externalUrl, externalThumb);
 
   await db.insert(products).values({
     name,

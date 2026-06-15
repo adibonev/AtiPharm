@@ -7,7 +7,12 @@ export function ProductForm() {
   const [name, setName] = useState("");
   const [results, setResults] = useState<ImageResult[]>([]);
   const [chosen, setChosen] = useState("");
+  const [chosenThumb, setChosenThumb] = useState("");
   const [zoom, setZoom] = useState<ImageResult | null>(null);
+  const pick = (r: ImageResult) => {
+    setChosen(r.url);
+    setChosenThumb(r.thumb);
+  };
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
 
@@ -75,7 +80,7 @@ export function ProductForm() {
                   <img
                     src={r.thumb}
                     alt=""
-                    onClick={() => setChosen(r.url)}
+                    onClick={() => pick(r)}
                     title="Избери тази снимка"
                   />
                   <button
@@ -93,6 +98,7 @@ export function ProductForm() {
         </div>
       )}
       {chosen && <input type="hidden" name="imageUrlExternal" value={chosen} />}
+      {chosenThumb && <input type="hidden" name="imageThumbExternal" value={chosenThumb} />}
 
       <div className="field full">
         <label>…или качи файл (чист пакшот, бял фон)</label>
@@ -120,7 +126,7 @@ export function ProductForm() {
                 type="button"
                 className="btn"
                 onClick={() => {
-                  setChosen(zoom.url);
+                  pick(zoom);
                   setZoom(null);
                 }}
               >

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Brochure } from "./Brochure";
+import { AppNav } from "./AppNav";
 import { formatPeriod, DISCLAIMERS } from "@/lib/pricing";
 import { saveIssue } from "@/app/composer/actions";
 import type { IssueData, CardProduct, FeaturedProduct, ProductType } from "@/lib/types";
@@ -44,8 +45,10 @@ const emptyRow = (): Row => ({
 });
 const num = (s: string) => (s.trim() ? parseFloat(s.replace(",", ".")) : undefined);
 
+type IssueRow = { id: number; number: number; periodFrom: string | null; periodTo: string | null };
+
 export interface ComposerInitial {
-  issueId: number;
+  issueId?: number;
   number: string;
   from: string;
   to: string;
@@ -57,16 +60,17 @@ export interface ComposerInitial {
 export function Composer({
   catalog,
   settings,
+  issues,
   initial,
 }: {
   catalog: DbProduct[];
   settings: DbSettings;
+  issues: IssueRow[];
   initial?: ComposerInitial;
 }) {
   const [number, setNumber] = useState(initial?.number ?? "1");
   const [from, setFrom] = useState(initial?.from || "2026-06-14");
   const [to, setTo] = useState(initial?.to || "2026-07-13");
-  const [freeText, setFreeText] = useState(initial?.freeText ?? "");
   const [rows, setRows] = useState<Record<number, Row>>(() => {
     const base: Record<number, Row> = Object.fromEntries(
       catalog.map((p) => [p.id, emptyRow()])
@@ -81,6 +85,8 @@ export function Composer({
   const [savedId, setSavedId] = useState<number | undefined>(initial?.issueId);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterText, setFilterText] = useState("");
 
   const patch = (id: number, p: Partial<Row>) =>
     setRows((r) => ({ ...r, [id]: { ...r[id], ...p } }));
@@ -128,12 +134,19 @@ export function Composer({
       sub: p.subtitle ?? undefined,
       img: p.imageUrl ?? "",
       type: p.type as ProductType,
+      priceUnit: p.priceUnit as "per_pack" | "per_piece",
       oldEur: num(r.oldEur),
       newEur: num(r.newEur),
       percentOnly: r.percentOnly || undefined,
       percent: r.percent ? parseInt(r.percent) : undefined,
     };
   };
+
+  const visibleCatalog = catalog.filter(
+    (p) =>
+      (!filterType || p.type === filterType) &&
+      (!filterText || p.name.toLowerCase().includes(filterText.toLowerCase()))
+  );
 
   // products of the issue, in manual order
   const includedOrdered = order
@@ -142,7 +155,11 @@ export function Composer({
   const renderable = includedOrdered.filter((p) => priced(rows[p.id]));
   const heroP = renderable.find((p) => rows[p.id].isHero) ?? renderable[0];
   const featured: FeaturedProduct | null = heroP
-    ? { ...toCard(heroP), tag: heroP.subtitle ?? undefined, unitNote: "за опаковка · лв./оп." }
+    ? {
+        ...toCard(heroP),
+        tag: heroP.subtitle ?? undefined,
+        unitNote: heroP.priceUnit === "per_piece" ? "за брой · €/бр." : "за опаковка · €/оп.",
+      }
     : null;
   const gridProducts = renderable.filter((p) => p !== heroP).map(toCard);
 
@@ -184,7 +201,7 @@ export function Composer({
         number: parseInt(number) || 1,
         periodFrom: from,
         periodTo: to,
-        freeText,
+        freeText: "",
         items,
       });
       if (res.ok) {
@@ -199,28 +216,32 @@ export function Composer({
   }
 
   return (
-    <div className="composer">
+    <div className="composer-wrap">
+      <AppNav active="/composer" />
+      <div className="composer">
       <div className="composer__editor screen-only">
-        <div className="composer__nav">
-          <a href="/composer">Нов брой</a>
-          <a href="/issues">Броеве</a>
-          <a href="/products">Продукти</a>
-          <a href="/settings">Настройки</a>
-          <form action="/api/logout" method="post">
-            <button type="submit">Изход</button>
-          </form>
-        </div>
-
         <h2>{savedId ? `Брой #${savedId}` : "Нов брой"}</h2>
-        <div className="composer__row2">
-          <div className="composer__field">
-            <label>Брой №</label>
-            <input value={number} onChange={(e) => setNumber(e.target.value)} />
+        {!savedId && issues.length > 0 && (
+          <div className="composer__field" style={{ marginBottom: 12 }}>
+            <label>Копирай от стар брой</label>
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) window.location.href = `/composer?copyFrom=${e.target.value}`;
+              }}
+            >
+              <option value="">— нов празен брой —</option>
+              {issues.map((i) => (
+                <option key={i.id} value={i.id}>
+                  Брой №{i.number} · {i.periodFrom}–{i.periodTo}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className="composer__field">
-            <label>Свободен текст</label>
-            <input value={freeText} onChange={(e) => setFreeText(e.target.value)} placeholder="(по избор)" />
-          </div>
+        )}
+        <div className="composer__field">
+          <label>Брой №</label>
+          <input value={number} onChange={(e) => setNumber(e.target.value)} />
         </div>
         <div className="composer__row2">
           <div className="composer__field">
@@ -234,8 +255,26 @@ export function Composer({
         </div>
 
         <h2 style={{ marginTop: 16 }}>Продукти</h2>
+        <div className="composer__filters">
+          <input
+            placeholder="🔍 търси по име"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+            <option value="">Всички типове</option>
+            <option value="supplement">Добавки</option>
+            <option value="otc_drug">Лекарства (OTC)</option>
+            <option value="cosmetic">Козметика</option>
+            <option value="medical_device">Мед. изделия</option>
+            <option value="other">Други</option>
+          </select>
+        </div>
         <div className="composer__products">
-          {catalog.map((p) => {
+          {visibleCatalog.length === 0 && (
+            <p style={{ color: "var(--muted)", fontSize: 13, margin: "4px 2px" }}>Няма съвпадения.</p>
+          )}
+          {visibleCatalog.map((p) => {
             const r = rows[p.id];
             const unconfirmed = r.included && !r.confirmed;
             return (
@@ -320,6 +359,7 @@ export function Composer({
         ) : (
           <div className="composer__empty">Избери продукти и въведи цени отляво, за да се появи брошурата.</div>
         )}
+      </div>
       </div>
     </div>
   );

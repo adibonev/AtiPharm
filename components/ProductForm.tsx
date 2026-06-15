@@ -57,8 +57,8 @@ export function ProductForm() {
       <div className="field">
         <label>Мерна единица</label>
         <select name="priceUnit" defaultValue="per_pack">
-          <option value="per_pack">лв./оп.</option>
-          <option value="per_piece">лв./бр.</option>
+          <option value="per_pack">€/оп.</option>
+          <option value="per_piece">€/бр.</option>
         </select>
       </div>
 

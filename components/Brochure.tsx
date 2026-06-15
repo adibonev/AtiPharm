@@ -1,4 +1,4 @@
-import { lev, eurStr, levStr, pctOf, DISCLAIMERS, periodShort } from "@/lib/pricing";
+import { lev, eurStr, levStr, pctOf, DISCLAIMERS, periodShort, unitLabel } from "@/lib/pricing";
 import type { IssueData, CardProduct, FeaturedProduct, ProductType } from "@/lib/types";
 
 const PER_PAGE = 6;
@@ -24,7 +24,7 @@ function Price({ p }: { p: CardProduct }) {
       <div className="now">
         {eurStr(p.newEur!)} <i>|</i> <span className="lv">{levStr(lev(p.newEur!))}</span>
       </div>
-      <span className="unit">лв./оп.</span>
+      <span className="unit">{unitLabel(p.priceUnit)}</span>
     </div>
   );
 }

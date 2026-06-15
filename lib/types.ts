@@ -13,6 +13,7 @@ export interface CardProduct {
   sub?: string;
   img: string;
   type: ProductType;
+  priceUnit?: PriceUnit;
   oldEur?: number;
   newEur?: number;
   percentOnly?: boolean;

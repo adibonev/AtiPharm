@@ -10,6 +10,9 @@ export const levStr = (n: number) => bg(n) + " лв.";
 export const pctOf = (oldEur: number, newEur: number) =>
   Math.round((1 - newEur / oldEur) * 100);
 
+/** Unit label (euro-based). per_piece -> "€/бр.", otherwise "€/оп.". */
+export const unitLabel = (u?: string) => (u === "per_piece" ? "€/бр." : "€/оп.");
+
 /** Auto-disclaimer by product type (spec §7). Only OTC drugs and supplements
  *  carry a mandatory disclaimer; cosmetic / medical_device / other carry none. */
 export const DISCLAIMERS: Partial<Record<ProductType, string>> = {

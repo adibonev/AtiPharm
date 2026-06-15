@@ -148,8 +148,9 @@ body.has-toolbar{ padding-top:50px; }
 .login-card .err{ color:#c0392b; font-size:13px; margin:0; font-weight:600; }
 
 /* ---------- КОМПОЗИТОР (екран) ---------- */
-.composer{ display:grid; grid-template-columns:430px 1fr; min-height:100vh; }
-.composer__editor{ background:#fff; border-right:1px solid var(--cream-line); padding:18px; overflow:auto; max-height:100vh; }
+.composer-wrap{ display:flex; flex-direction:column; height:100vh; }
+.composer{ display:grid; grid-template-columns:430px 1fr; flex:1 1 auto; min-height:0; }
+.composer__editor{ background:#fff; border-right:1px solid var(--cream-line); padding:18px; overflow:auto; max-height:100%; }
 .composer__editor h2{ margin:0 0 10px; color:var(--green); font-size:17px; }
 .composer__nav{ display:flex; gap:16px; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--cream-line); }
 .composer__nav a{ color:var(--green); font-weight:700; text-decoration:none; font-size:13px; }
@@ -159,6 +160,8 @@ body.has-toolbar{ padding-top:50px; }
 .composer__field label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
 .composer__field input, .composer__field textarea{ padding:8px 10px; border:1.5px solid var(--cream-line); border-radius:8px; font:inherit; }
 .composer__row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.composer__filters{ display:grid; grid-template-columns:1fr auto; gap:8px; margin-bottom:10px; }
+.composer__filters input, .composer__filters select{ padding:8px 10px; border:1.5px solid var(--cream-line); border-radius:8px; font:inherit; }
 .composer__products{ display:flex; flex-direction:column; gap:8px; }
 .composer__prod{ border:1.5px solid var(--cream-line); border-radius:10px; padding:8px 10px; }
 .composer__prod.on{ border-color:var(--leaf); background:#FAFCF6; }
@@ -233,6 +236,8 @@ body.has-toolbar{ padding-top:50px; }
 .orderlist__item button:disabled{ opacity:.3; cursor:default; }
 
 @media print {
+  .composer-wrap{ display:block; height:auto; }
+  .appnav{ display:none !important; }
   .composer{ display:block; }
   .composer__editor{ display:none !important; }
   .composer__preview{ padding:0; background:#fff; overflow:visible; }

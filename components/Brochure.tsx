@@ -1,8 +1,6 @@
 import { lev, eurStr, levStr, pctOf, DISCLAIMERS, periodShort, unitLabel } from "@/lib/pricing";
 import type { IssueData, CardProduct, FeaturedProduct, ProductType } from "@/lib/types";
 
-const PER_PAGE = 6;
-
 type Disclaimers = Partial<Record<ProductType, string>>;
 
 function Price({ p }: { p: CardProduct }) {
@@ -13,6 +11,17 @@ function Price({ p }: { p: CardProduct }) {
           <b>-{p.percent}%</b>
           <span>отстъпка</span>
         </div>
+      </div>
+    );
+  }
+  if (p.lowPrice) {
+    return (
+      <div className="price">
+        <div className="low-label">Трайно ниска цена</div>
+        <div className="now low">
+          {eurStr(p.newEur!)} <i>|</i> <span className="lv">{levStr(lev(p.newEur!))}</span>
+        </div>
+        <span className="unit">{unitLabel(p.priceUnit)}</span>
       </div>
     );
   }
@@ -41,7 +50,7 @@ function Card({
   return (
     <article className={`card ${p.percentOnly ? "only" : ""}`}>
       <div className="card__media">
-        {!p.percentOnly && (
+        {!p.percentOnly && !p.lowPrice && (
           <span className="ribbon ribbon--card">-{pctOf(p.oldEur!, p.newEur!)}%</span>
         )}
         <img src={p.img} alt={p.name} />
@@ -105,7 +114,9 @@ function Cover({
           <div className="cv-kicker">Акцент на броя</div>
           <div className="cv-hero">
             <div className="cv-card">
-              <span className="ribbon">-{pctOf(f.oldEur!, f.newEur!)}%</span>
+              {!f.percentOnly && !f.lowPrice && (
+                <span className="ribbon">-{pctOf(f.oldEur!, f.newEur!)}%</span>
+              )}
               <img src={f.img} alt={f.name} />
             </div>
             <div className="cv-body">
@@ -113,14 +124,32 @@ function Cover({
               <h1>{f.name}</h1>
               <p className="sub">{f.sub}</p>
               <div className="cv-price">
-                <div className="old strike">
-                  {eurStr(f.oldEur!)} | {levStr(lev(f.oldEur!))}
-                </div>
-                <div className="now">
-                  {eurStr(f.newEur!)} <i>|</i>{" "}
-                  <span className="lv">{levStr(lev(f.newEur!))}</span>
-                </div>
-                <span className="unit">{f.unitNote}</span>
+                {f.percentOnly ? (
+                  <>
+                    <div className="now">-{f.percent}%</div>
+                    <span className="unit">отстъпка</span>
+                  </>
+                ) : f.lowPrice ? (
+                  <>
+                    <div className="low-label">Трайно ниска цена</div>
+                    <div className="now low">
+                      {eurStr(f.newEur!)} <i>|</i>{" "}
+                      <span className="lv">{levStr(lev(f.newEur!))}</span>
+                    </div>
+                    <span className="unit">{f.unitNote}</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="old strike">
+                      {eurStr(f.oldEur!)} | {levStr(lev(f.oldEur!))}
+                    </div>
+                    <div className="now">
+                      {eurStr(f.newEur!)} <i>|</i>{" "}
+                      <span className="lv">{levStr(lev(f.newEur!))}</span>
+                    </div>
+                    <span className="unit">{f.unitNote}</span>
+                  </>
+                )}
               </div>
               <div className="cv-meta">
                 <span className="cv-period">Промоция {issue.period}</span>
@@ -171,12 +200,15 @@ export function Brochure({
   products: CardProduct[];
   disclaimers?: Disclaimers;
 }) {
-  const pages = Math.max(1, Math.ceil(products.length / PER_PAGE));
+  // Few products -> fewer, larger cards per page (spec §5).
+  const big = products.length <= 7;
+  const perPage = big ? 4 : 6;
+  const pages = Math.max(1, Math.ceil(products.length / perPage));
   return (
     <>
       <Cover issue={issue} featured={featured} disclaimers={disclaimers} />
       {Array.from({ length: pages }).map((_, i) => {
-        const slice = products.slice(i * PER_PAGE, (i + 1) * PER_PAGE);
+        const slice = products.slice(i * perPage, (i + 1) * perPage);
         return (
           <section className="page page--products" key={i}>
             <div className="page__safe">
@@ -186,7 +218,7 @@ export function Brochure({
                   {issue.no} · <b>{issue.period}</b>
                 </div>
               </header>
-              <div className="grid">
+              <div className={`grid ${big ? "grid--big" : ""}`}>
                 {slice.map((p, j) => (
                   <Card key={j} p={p} period={issue.period} disclaimers={disclaimers} />
                 ))}

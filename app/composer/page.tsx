@@ -48,6 +48,7 @@ export default async function ComposerPage({
           oldEur: it.oldPriceEur ?? "",
           newEur: it.newPriceEur ?? "",
           percentOnly: it.percentOnly,
+          lowPrice: it.lowPrice,
           percent: it.percent != null ? String(it.percent) : "",
           isHero: it.isHero,
           // when copying into a NEW issue, prices need confirmation (yellow marker)

@@ -9,6 +9,7 @@ export interface SaveIssueItem {
   oldPriceEur?: number;
   newPriceEur?: number;
   percentOnly: boolean;
+  lowPrice: boolean;
   percent?: number;
   isHero: boolean;
   sortOrder: number;
@@ -39,6 +40,7 @@ export async function getIssueForCopy(id: number) {
       oldEur: it.oldPriceEur ?? "",
       newEur: it.newPriceEur ?? "",
       percentOnly: it.percentOnly,
+      lowPrice: it.lowPrice,
       percent: it.percent != null ? String(it.percent) : "",
       isHero: it.isHero,
     })),
@@ -70,6 +72,7 @@ export async function saveIssue(input: SaveIssueInput) {
         oldPriceEur: it.oldPriceEur != null ? String(it.oldPriceEur) : null,
         newPriceEur: it.newPriceEur != null ? String(it.newPriceEur) : null,
         percentOnly: it.percentOnly,
+        lowPrice: it.lowPrice,
         percent: it.percent ?? null,
         isHero: it.isHero,
         sortOrder: it.sortOrder,

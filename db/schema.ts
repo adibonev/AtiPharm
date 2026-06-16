@@ -46,6 +46,7 @@ export const issueProducts = pgTable("issue_products", {
   oldPriceEur: numeric("old_price_eur", { precision: 10, scale: 2 }),
   newPriceEur: numeric("new_price_eur", { precision: 10, scale: 2 }),
   percentOnly: boolean("percent_only").notNull().default(false),
+  lowPrice: boolean("low_price").notNull().default(false),
   percent: integer("percent"),
   isHero: boolean("is_hero").notNull().default(false),
   sortOrder: integer("sort_order").notNull().default(0),

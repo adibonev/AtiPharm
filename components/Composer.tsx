@@ -30,6 +30,7 @@ type Row = {
   oldEur: string;
   newEur: string;
   percentOnly: boolean;
+  lowPrice: boolean;
   percent: string;
   isHero: boolean;
   confirmed: boolean;
@@ -39,6 +40,7 @@ const emptyRow = (): Row => ({
   oldEur: "",
   newEur: "",
   percentOnly: false,
+  lowPrice: false,
   percent: "",
   isHero: false,
   confirmed: true,
@@ -87,6 +89,7 @@ export function Composer({
   const [savedMsg, setSavedMsg] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterText, setFilterText] = useState("");
+  const [copiedFrom, setCopiedFrom] = useState("");
 
   const patch = (id: number, p: Partial<Row>) =>
     setRows((r) => ({ ...r, [id]: { ...r[id], ...p } }));
@@ -123,6 +126,7 @@ export function Composer({
           oldEur: it.oldEur,
           newEur: it.newEur,
           percentOnly: it.percentOnly,
+          lowPrice: it.lowPrice,
           percent: it.percent,
           isHero: it.isHero,
           confirmed: false, // copied prices need confirmation
@@ -151,7 +155,11 @@ export function Composer({
   }
 
   const priced = (r: Row) =>
-    r.percentOnly ? !!r.percent.trim() : !!r.oldEur.trim() && !!r.newEur.trim();
+    r.percentOnly
+      ? !!r.percent.trim()
+      : r.lowPrice
+        ? !!r.newEur.trim()
+        : !!r.oldEur.trim() && !!r.newEur.trim();
 
   const toCard = (p: DbProduct): CardProduct => {
     const r = rows[p.id];
@@ -164,6 +172,7 @@ export function Composer({
       oldEur: num(r.oldEur),
       newEur: num(r.newEur),
       percentOnly: r.percentOnly || undefined,
+      lowPrice: r.lowPrice || undefined,
       percent: r.percent ? parseInt(r.percent) : undefined,
     };
   };
@@ -216,6 +225,7 @@ export function Composer({
         oldPriceEur: num(r.oldEur),
         newPriceEur: num(r.newEur),
         percentOnly: r.percentOnly,
+        lowPrice: r.lowPrice,
         percent: r.percent ? parseInt(r.percent) : undefined,
         isHero: heroP?.id === p.id,
         sortOrder: i,
@@ -251,9 +261,11 @@ export function Composer({
           <div className="composer__field" style={{ marginBottom: 12 }}>
             <label>Копирай от стар брой</label>
             <select
-              value=""
+              value={copiedFrom}
               onChange={(e) => {
-                if (e.target.value) onCopy(Number(e.target.value));
+                const v = e.target.value;
+                setCopiedFrom(v);
+                if (v) onCopy(Number(v));
               }}
             >
               <option value="">— нов празен брой —</option>
@@ -323,21 +335,29 @@ export function Composer({
                 </div>
                 {r.included && (
                   <>
-                    {!r.percentOnly ? (
-                      <div className="grid2">
-                        <input placeholder="стара €" value={r.oldEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { oldEur: e.target.value })} />
-                        <input placeholder="нова €" value={r.newEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { newEur: e.target.value })} />
-                      </div>
-                    ) : (
+                    {r.percentOnly ? (
                       <div className="grid2">
                         <input placeholder="−% отстъпка" value={r.percent} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { percent: e.target.value })} />
                         <span />
+                      </div>
+                    ) : r.lowPrice ? (
+                      <div className="grid2">
+                        <input placeholder="цена €" value={r.newEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { newEur: e.target.value })} />
+                        <span />
+                      </div>
+                    ) : (
+                      <div className="grid2">
+                        <input placeholder="стара €" value={r.oldEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { oldEur: e.target.value })} />
+                        <input placeholder="нова €" value={r.newEur} onFocus={() => priceEdit(p.id, {})} onChange={(e) => priceEdit(p.id, { newEur: e.target.value })} />
                       </div>
                     )}
                     {unconfirmed && <div className="confirm-flag">цена от предишен брой — потвърди</div>}
                     <div className="opts">
                       <label>
-                        <input type="checkbox" checked={r.percentOnly} onChange={(e) => patch(p.id, { percentOnly: e.target.checked })} /> само −% (без цени)
+                        <input type="checkbox" checked={r.percentOnly} onChange={(e) => patch(p.id, { percentOnly: e.target.checked, lowPrice: e.target.checked ? false : r.lowPrice })} /> само −%
+                      </label>
+                      <label>
+                        <input type="checkbox" checked={r.lowPrice} onChange={(e) => patch(p.id, { lowPrice: e.target.checked, percentOnly: e.target.checked ? false : r.percentOnly })} /> трайно ниска
                       </label>
                     </div>
                   </>

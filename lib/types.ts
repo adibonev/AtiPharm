@@ -17,6 +17,7 @@ export interface CardProduct {
   oldEur?: number;
   newEur?: number;
   percentOnly?: boolean;
+  lowPrice?: boolean;
   percent?: number;
 }
 

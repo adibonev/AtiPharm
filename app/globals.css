@@ -130,10 +130,12 @@ body {
 .foot--slim > span:first-child{ flex:0 0 auto; }
 .foot--slim > span:last-child{ text-align:right; }
 .page--products .page__safe{ bottom:16mm; display:flex; flex-direction:column; }
-.page--products .grid{ flex:1 1 auto; align-content:start; min-height:0; }
-/* Пълна 4/стр страница: двата реда се разпределят равномерно, за да запълнят
-   листа като 6/стр. Непълна последна страница остава подравнена отгоре. */
-.page--products .grid--big.grid--fill{ align-content:space-evenly; }
+/* Редовете се разпределят равномерно по височина, за да запълнят листа —
+   без празна ивица над футъра (важи и за 6/стр, и за 4/стр). */
+.page--products .grid{ flex:1 1 auto; align-content:space-evenly; min-height:0; }
+/* Изключение: непълна последна ЕДРА страница (напр. само 1 карта) се подравнява
+   отгоре, за да не „плава" самотна карта в центъра. */
+.page--products .grid--big:not(.grid--fill){ align-content:start; }
 
 /* компактен режим за 6 карти/страница — близък мащаб до едрия режим, с резерв
    по височина, така че дисклеймърът никога да не се реже */

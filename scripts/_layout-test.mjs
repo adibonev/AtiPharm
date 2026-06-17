@@ -119,10 +119,21 @@ const doc = (body, zoom) => `<!DOCTYPE html><html lang="bg"><head><meta charset=
   zoom ? `<div class="composer__preview"><div class="composer__preview-inner">${body}</div></div>` : body
 }${measure}</body></html>`;
 
+// Worst-case 6: 2-line names + 2-line subs + full disclaimers, to confirm
+// space-evenly still never clips (free space stays positive).
+const W = [
+  { name: "Центрум Beauty & Collagen капс. x 30", sub: "За коса, кожа и нокти с биотин, цинк и колаген", img: "procombo", type: "supplement", oldEur: 16.99, newEur: 8.49 },
+  { name: "Тератур ПроНатурал сироп за деца над 1г.", sub: "За сухо и влажна кашлица с екстракт от мащерка", img: "tibanol", type: "otc_drug", lowPrice: true, newEur: 10.49 },
+  { name: "Магнезий Допелхерц Депо 2-фазни табл.", sub: "2-фазна таблетка ДЕПО, 500 mg за нервната система", img: "magnezij", type: "supplement", lowPrice: true, newEur: 6.99 },
+  { name: "Волтарен Форте лечебен пластир 24 часа", sub: "Облекчава болезнената зона за 24 часа при болки", img: "magkombo", type: "otc_drug", lowPrice: true, newEur: 16.29 },
+  { name: "Бонген Мега ампули за стави x 16 броя", sub: "За ставите, мускулите и костите при натоварване", img: "nazik", type: "supplement", oldEur: 28.19, newEur: 25.37 },
+  { name: "Магне Д'оро Ликуид течни сашета x 20", sub: "Течни сашета за директен прием без вода навсякъде", img: "zhivi", type: "supplement", lowPrice: true, newEur: 6.99 },
+];
+
 for (const [file, body, zoom] of [
-  ["_layout-6.html", pageHTML(P, false, "6 продукта · zoom 1"), false],
-  ["_layout-6-zoom.html", pageHTML(P, false, "6 продукта · composer zoom .6"), true],
-  ["_layout-4.html", pageHTML(P.slice(0, 4), true, "4 продукта (едър)"), false],
+  ["_layout-6.html", pageHTML(P, false, "6 продукта (пълна) · fill"), false],
+  ["_layout-4part.html", pageHTML(P.slice(0, 4), false, "4 продукта (непълна 6/стр) · fill"), false],
+  ["_layout-6worst.html", pageHTML(W, false, "6 продукта · worst-case · fill"), false],
 ]) {
   const out = join(__dirname, file);
   writeFileSync(out, doc(body, zoom), "utf8");

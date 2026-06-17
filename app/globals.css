@@ -296,6 +296,11 @@ body.has-toolbar{ padding-top:50px; }
 .orderlist__item .nm{ flex:1; font-size:13px; color:var(--green); font-weight:700; }
 .orderlist__item button{ border:1px solid var(--cream-line); background:#fff; border-radius:6px; cursor:pointer; width:26px; height:26px; font:inherit; line-height:1; }
 .orderlist__item button:disabled{ opacity:.3; cursor:default; }
+/* включен продукт без цена — няма да влезе в брошурата */
+.orderlist__item.noprice{ border-color:#e6b3ab; background:#fdf3f1; }
+.orderlist__item.noprice .nm{ color:#c0392b; }
+.noprice-badge{ font-size:11px; font-weight:800; color:#fff; background:#c0392b; border-radius:6px; padding:3px 8px; white-space:nowrap; }
+.orderlist__hint{ margin:8px 0 6px; font-size:12px; line-height:1.4; color:#9a3b2f; background:#fdf3f1; border:1px solid #e6b3ab; border-radius:8px; padding:8px 10px; }
 
 @media print {
   .composer-wrap{ display:block; height:auto; }

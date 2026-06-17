@@ -188,6 +188,7 @@ export function Composer({
     .map((id) => catalog.find((p) => p.id === id))
     .filter((p): p is DbProduct => !!p && rows[p.id]?.included);
   const renderable = includedOrdered.filter((p) => priced(rows[p.id]));
+  const noPriceCount = includedOrdered.length - renderable.length;
   const heroP = renderable.find((p) => rows[p.id].isHero) ?? renderable[0];
   const featured: FeaturedProduct | null = heroP
     ? {
@@ -369,12 +370,29 @@ export function Composer({
 
         {includedOrdered.length > 1 && (
           <>
-            <h2 style={{ marginTop: 16 }}>Подредба <small style={{ fontWeight: 500, color: "var(--muted)", fontSize: 12 }}>(влачи или ↑↓)</small></h2>
+            <h2 style={{ marginTop: 16 }}>
+              Подредба{" "}
+              <small style={{ fontWeight: 500, color: "var(--muted)", fontSize: 12 }}>
+                ({renderable.length} в брошурата
+                {noPriceCount > 0 && (
+                  <span style={{ color: "#c0392b", fontWeight: 700 }}> · {noPriceCount} без цена</span>
+                )}
+                )
+              </small>
+            </h2>
+            {noPriceCount > 0 && (
+              <p className="orderlist__hint">
+                ⚠ Продукт без попълнена цена не се показва в брошурата и не добавя нова страница.
+                Въведи цена отляво (при „трайно ниска" — нова цена; при „само −%" — процент).
+              </p>
+            )}
             <div className="orderlist">
-              {includedOrdered.map((p, i) => (
+              {includedOrdered.map((p, i) => {
+                const hasPrice = priced(rows[p.id]);
+                return (
                 <div
                   key={p.id}
-                  className={`orderlist__item ${dragId === p.id ? "drag" : ""}`}
+                  className={`orderlist__item ${dragId === p.id ? "drag" : ""} ${hasPrice ? "" : "noprice"}`}
                   draggable
                   onDragStart={() => setDragId(p.id)}
                   onDragOver={(e) => onDragOver(e, p.id)}
@@ -382,10 +400,12 @@ export function Composer({
                 >
                   <span className="handle">⠿</span>
                   <span className="nm">{i + 1}. {p.name}{heroP?.id === p.id ? " · акцент" : ""}</span>
+                  {!hasPrice && <span className="noprice-badge">без цена</span>}
                   <button type="button" onClick={() => move(p.id, -1)} disabled={i === 0}>↑</button>
                   <button type="button" onClick={() => move(p.id, 1)} disabled={i === includedOrdered.length - 1}>↓</button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

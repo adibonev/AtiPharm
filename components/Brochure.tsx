@@ -209,6 +209,7 @@ export function Brochure({
       <Cover issue={issue} featured={featured} disclaimers={disclaimers} />
       {Array.from({ length: pages }).map((_, i) => {
         const slice = products.slice(i * perPage, (i + 1) * perPage);
+        const fill = slice.length === perPage; // full page -> distribute rows to fill the sheet
         return (
           <section className="page page--products" key={i}>
             <div className="page__safe">
@@ -218,7 +219,7 @@ export function Brochure({
                   {issue.no} · <b>{issue.period}</b>
                 </div>
               </header>
-              <div className={`grid ${big ? "grid--big" : ""}`}>
+              <div className={`grid ${big ? "grid--big" : ""} ${fill ? "grid--fill" : ""}`}>
                 {slice.map((p, j) => (
                   <Card key={j} p={p} period={issue.period} disclaimers={disclaimers} />
                 ))}

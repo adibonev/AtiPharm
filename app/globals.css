@@ -85,11 +85,11 @@ body {
 .page-head .meta{ font-size:13px; font-weight:700; color:var(--muted); }
 .page-head .meta b{ color:var(--green); }
 .grid{ margin-top:4mm; display:grid; grid-template-columns:1fr 1fr; gap:5mm; }
-/* едри карти при малко продукти (4/стр) — по-големи снимки */
-.grid--big .card__media{ height:54mm; }
-.grid--big .card__media img{ max-height:50mm; }
-.grid--big .card h3{ font-size:24px; }
-.grid--big .card .sub{ font-size:13px; }
+/* едри карти при малко продукти (4/стр) — близък мащаб до компактния режим */
+.grid--big .card__media{ height:44mm; }
+.grid--big .card__media img{ max-height:40mm; }
+.grid--big .card h3{ font-size:22px; line-height:1.06; }
+.grid--big .card .sub{ font-size:12.5px; }
 .card{ position:relative; background:#fff; border:1px solid var(--cream-line); border-radius:16px;
   padding:0 0 3.5mm; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 6px 20px rgba(20,40,25,.05);
   break-inside:avoid; page-break-inside:avoid; }
@@ -113,7 +113,7 @@ body {
   text-transform:uppercase; letter-spacing:.03em; padding:2px 8px; border-radius:5px; margin-bottom:3px; }
 .card .price .now.low{ color:var(--orange); }
 .cv-price .now.low{ color:#FFD27A; }
-.grid--big .low-label{ font-size:13px; }
+.grid--big .low-label{ font-size:12px; }
 .card__foot{ margin-top:6px; padding-top:6px; border-top:1px dashed var(--cream-line); display:flex; gap:7px; align-items:flex-start; }
 .period-tag{ display:inline-block; background:var(--cream); color:var(--green); border-radius:7px; padding:4px 10px; font-size:11.5px; font-weight:700; white-space:nowrap; }
 .disc{ font-size:9px; line-height:1.25; color:#A6AD9C; margin:0; }
@@ -131,15 +131,20 @@ body {
 .foot--slim > span:last-child{ text-align:right; }
 .page--products .page__safe{ bottom:16mm; display:flex; flex-direction:column; }
 .page--products .grid{ flex:1 1 auto; align-content:start; min-height:0; }
+/* Пълна 4/стр страница: двата реда се разпределят равномерно, за да запълнят
+   листа като 6/стр. Непълна последна страница остава подравнена отгоре. */
+.page--products .grid--big.grid--fill{ align-content:space-evenly; }
 
-/* компактен режим за 6 карти/страница: оптимизиран мащаб с максимално използване на място */
+/* компактен режим за 6 карти/страница — близък мащаб до едрия режим, с резерв
+   по височина, така че дисклеймърът никога да не се реже */
 .page--products .grid:not(.grid--big){ gap:3.5mm; }
-.page--products .grid:not(.grid--big) .card__media{ height:37mm; }
-.page--products .grid:not(.grid--big) .card__media img{ max-height:34mm; }
-.page--products .grid:not(.grid--big) .card__body{ padding:7px 4.5mm 0; }
+.page--products .grid:not(.grid--big) .card{ padding-bottom:3mm; }
+.page--products .grid:not(.grid--big) .card__media{ height:32mm; }
+.page--products .grid:not(.grid--big) .card__media img{ max-height:29mm; }
+.page--products .grid:not(.grid--big) .card__body{ padding:6px 4.5mm 0; }
 .page--products .grid:not(.grid--big) .card h3{
-  font-size:19px;
-  line-height:1.08;
+  font-size:20px;
+  line-height:1.04;
   margin-bottom:2px;
   display:-webkit-box;
   -webkit-line-clamp:2;
@@ -148,9 +153,9 @@ body {
   font-weight:800;
 }
 .page--products .grid:not(.grid--big) .card .sub{
-  font-size:11.5px;
-  line-height:1.22;
-  margin:0 0 5px;
+  font-size:12px;
+  line-height:1.2;
+  margin:0 0 3px;
   min-height:0;
   display:-webkit-box;
   -webkit-line-clamp:2;
@@ -162,9 +167,9 @@ body {
 .page--products .grid:not(.grid--big) .card .price .now .lv{ font-size:19px; }
 .page--products .grid:not(.grid--big) .card .price .unit{ font-size:10.5px; }
 .page--products .grid:not(.grid--big) .low-label{ font-size:10.5px; margin-bottom:2px; }
-.page--products .grid:not(.grid--big) .card__foot{ margin-top:5px; padding-top:5px; gap:6px; }
+.page--products .grid:not(.grid--big) .card__foot{ margin-top:4px; padding-top:4px; gap:6px; }
 .page--products .grid:not(.grid--big) .period-tag{ font-size:11px; padding:3px 8px; }
-.page--products .grid:not(.grid--big) .disc{ font-size:8.5px; line-height:1.22; }
+.page--products .grid:not(.grid--big) .disc{ font-size:8.5px; line-height:1.2; }
 
 /* ---------- ЕКРАННА ЛЕНТА (само на екран) ---------- */
 .toolbar{ position:fixed; top:0; left:0; right:0; z-index:9999; background:#0C5128; color:#fff;

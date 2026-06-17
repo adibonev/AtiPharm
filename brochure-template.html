@@ -20,6 +20,12 @@
 /* ---------- КОРИЦА ---------- */
 .cover{ background:radial-gradient(120% 90% at 80% 0%, #126237 0%, var(--green) 45%, var(--green-d) 100%); color:#EAF3E6; }
 .cover .page__safe{ display:flex; flex-direction:column; }
+/* ---------- ВОДЕН ЗНАК (само на корицата) ---------- */
+.watermark{ position:absolute; z-index:0; pointer-events:none; user-select:none;
+  top:50%; left:50%; width:195mm; height:auto; transform:translate(-50%,-50%);
+  opacity:.035; }
+/* съдържанието винаги над водния знак */
+.page__safe, .foot--slim, .foot{ z-index:1; }
 .cv-mast{ display:flex; align-items:center; justify-content:space-between; }
 .logo-pill{ background:#fff; border-radius:16px; padding:8px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
 .logo-pill img{ height:16mm; width:auto; display:block; }
@@ -258,6 +264,7 @@ function slimFooter(){
 function coverHTML(){
   const f = FEATURED;
   return `<section class="page cover" data-screen-label="Корица">
+    <img class="watermark" src="assets/logo-symbol-white.png" alt="" aria-hidden="true" />
     <div class="page__safe">
       <div class="cv-mast">
         <div class="logo-pill"><img src="assets/logo.png" alt="Аптека Атифарм"></div>

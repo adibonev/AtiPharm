@@ -23,15 +23,16 @@ const period = "14.06 – 13.07.2026";
 const periodShort = (p) => p.replace(/\.\d{4}/, "");
 const unitLabel = (u) => (u === "per_piece" ? "€/бр." : "€/оп.");
 
-// Worst-case set: long 2-line names + 2-line subs + full disclaimers, mixing
-// lowPrice (tallest: adds the orange label) and discount (adds the strike line).
+// The user's actual page-1 products (from the deployed screenshot). Mostly 1–2
+// line names/subs — EASIER than worst-case, yet production clips them. So we
+// reproduce the real render context (composer zoom:.6), not just the content.
 const P = [
-  { name: "Центрум Beauty & Collagen капс. x 30", sub: "За коса, кожа и нокти с биотин, цинк и колаген", img: "procombo", type: "supplement", oldEur: 16.99, newEur: 8.49 },
-  { name: "Тератур ПроНатурал сироп за деца над 1г.", sub: "За сухо и влажна кашлица с екстракт от мащерка", img: "tibanol", type: "otc_drug", lowPrice: true, newEur: 10.49 },
-  { name: "Магнезий Допелхерц Депо 2-фазни табл.", sub: "2-фазна таблетка ДЕПО, 500 mg за нервната система", img: "magnezij", type: "supplement", lowPrice: true, newEur: 6.99 },
-  { name: "Волтарен Форте лечебен пластир 24 часа", sub: "Облекчава болезнената зона за 24 часа при болки", img: "magkombo", type: "otc_drug", lowPrice: true, newEur: 16.29 },
-  { name: "Бонген Мега ампули за стави x 16 броя", sub: "За ставите, мускулите и костите при натоварване", img: "nazik", type: "supplement", oldEur: 28.19, newEur: 25.37 },
-  { name: "Магне Д'оро Ликуид течни сашета x 20", sub: "Течни сашета за директен прием без вода навсякъде", img: "zhivi", type: "supplement", lowPrice: true, newEur: 6.99 },
+  { name: "Прокомбо", sub: "Пробиотик + пребиотик за чревния баланс", img: "procombo", type: "supplement", lowPrice: true, newEur: 10.99 },
+  { name: "Тератур ПроНатурал сироп", sub: "За сухо и влажна кашлица за деца над 1 година", img: "tibanol", type: "otc_drug", lowPrice: true, newEur: 10.49 },
+  { name: "Живи Витамини", sub: "Биоактивна формула — течност в капсула", img: "zhivi", type: "supplement", lowPrice: true, newEur: 10.29 },
+  { name: "Центрум Beauty & Collagen капс. x 30", sub: "За коса, кожа и нокти", img: "magnezij", type: "supplement", oldEur: 16.99, newEur: 8.49 },
+  { name: "Бонген Мега ампули x 16", sub: "За ставите, мускулите и костите", img: "magkombo", type: "supplement", oldEur: 28.19, newEur: 25.37 },
+  { name: "Волтарен лечебен пластир", sub: "Облекчава болезнената зона за 24 часа", img: "nazik", type: "otc_drug", lowPrice: true, newEur: 16.29 },
 ];
 
 function priceHTML(p) {
@@ -80,7 +81,9 @@ const measure = `<script>
 window.addEventListener('load', () => { setTimeout(() => {
   const safe = document.querySelector('.page--products .page__safe');
   const sb = safe.getBoundingClientRect().bottom;   // the line where the page clips (overflow:hidden)
-  const px2mm = 96/25.4;
+  const page = document.querySelector('.page--products');
+  const zoom = page.getBoundingClientRect().width / (210 * 96/25.4); // detect CSS zoom from page width
+  const px2mm = (96/25.4) * zoom;
   const out = [];
   out.push('font: ' + getComputedStyle(document.querySelector('.card h3')).fontFamily.split(',')[0]);
   const cards = [...document.querySelectorAll('.card')];
@@ -98,7 +101,7 @@ window.addEventListener('load', () => { setTimeout(() => {
   });
   const headroom = (sb - lowest) / px2mm;
   const ch = cards[0].getBoundingClientRect().height / px2mm;
-  out.unshift('HEADROOM: ' + headroom.toFixed(1) + 'mm  (card h≈' + ch.toFixed(0) + 'mm)');
+  out.unshift('HEADROOM: ' + headroom.toFixed(1) + 'mm  (card h≈' + ch.toFixed(0) + 'mm, zoom ' + zoom.toFixed(2) + ')');
   const box = document.createElement('div');
   box.style.cssText = 'position:fixed;top:4px;left:4px;z-index:99999;background:#111;color:#0f0;font:13px/1.6 monospace;padding:7px 11px;border-radius:6px;white-space:pre;box-shadow:0 2px 8px rgba(0,0,0,.4)';
   box.textContent = out.join('\\n');
@@ -106,20 +109,22 @@ window.addEventListener('load', () => { setTimeout(() => {
 }, 300); });
 </script>`;
 
-const doc = (body) => `<!DOCTYPE html><html lang="bg"><head><meta charset="UTF-8">
+const doc = (body, zoom) => `<!DOCTYPE html><html lang="bg"><head><meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../app/globals.css">
 <style>body{background:#d9ddd6}</style>
-</head><body class="prem">${body}${measure}</body></html>`;
+</head><body class="prem">${
+  zoom ? `<div class="composer__preview"><div class="composer__preview-inner">${body}</div></div>` : body
+}${measure}</body></html>`;
 
-for (const [file, body] of [
-  ["_layout-6.html", pageHTML(P, false, "6 продукта (компактен)")],
-  ["_layout-4.html", pageHTML(P.slice(0, 4), true, "4 продукта (едър)")],
-  ["_layout-partial.html", pageHTML(P.slice(0, 1), true, "1 продукт (непълна последна стр.)")],
+for (const [file, body, zoom] of [
+  ["_layout-6.html", pageHTML(P, false, "6 продукта · zoom 1"), false],
+  ["_layout-6-zoom.html", pageHTML(P, false, "6 продукта · composer zoom .6"), true],
+  ["_layout-4.html", pageHTML(P.slice(0, 4), true, "4 продукта (едър)"), false],
 ]) {
   const out = join(__dirname, file);
-  writeFileSync(out, doc(body), "utf8");
+  writeFileSync(out, doc(body, zoom), "utf8");
   console.log("wrote", out);
 }

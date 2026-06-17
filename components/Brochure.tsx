@@ -99,6 +99,7 @@ function Cover({
   const f = featured;
   return (
     <section className="page cover">
+      <img className="watermark" src="/logo-symbol-white.png" alt="" aria-hidden="true" />
       <div className="page__safe">
         <div className="cv-mast">
           <div className="logo-pill">

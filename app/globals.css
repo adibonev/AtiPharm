@@ -43,7 +43,10 @@ body {
 
 /* ---------- КОРИЦА ---------- */
 .cover{ background:radial-gradient(120% 90% at 80% 0%, #126237 0%, var(--green) 45%, var(--green-d) 100%); color:#EAF3E6; }
-.cover .page__safe{ display:flex; flex-direction:column; }
+.cover .page__safe{ display:flex; flex-direction:column; z-index:1; }
+/* воден знак (само на корицата): едър блед символ, центриран зад съдържанието */
+.cover .watermark{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:auto; height:170mm; opacity:.06; z-index:0; pointer-events:none; user-select:none; }
 .cv-mast{ display:flex; align-items:center; justify-content:space-between; }
 .logo-pill{ background:#fff; border-radius:16px; padding:8px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
 .logo-pill img{ height:16mm; width:auto; display:block; }
